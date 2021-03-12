@@ -14,5 +14,8 @@ export const environments = {
     },
     avatarStorageKey: 'avatar-custom',
     storageLocation: './dataStored',
-    avatarHttpTimeout: 3000
+    avatarHttpTimeout: 3000,
+    urlCacheKey: 'url-processor',
+    urlHttpTimeout: 1500,
+    urlMaxBodyLength: 35000
 };
