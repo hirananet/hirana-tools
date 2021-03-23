@@ -1,4 +1,3 @@
-import { environments } from 'src/environment';
 import { environments } from './../environment';
 import { StorageService } from './../storage/storage.service';
 import { CacheService } from './../cache/cache.service';
