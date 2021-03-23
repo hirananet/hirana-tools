@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { Controller, Get, Query} from '@nestjs/common';
 import { CustomTitlesService } from './custom-titles.service';
 
 @Controller('customr')
@@ -9,7 +9,7 @@ export class CustomTitlesController {
     }
 
     @Get('')
-    public getCustomRange(@Req() request: Request, @Res() response: Response, @Query('usr') user: string, @Query('chn') channel: string) {
+    public getCustomRange(@Query('usr') user: string, @Query('chn') channel: string) {
         let rData = this.cusTtlSrv.getChannelCustom(channel, user);
         if(!rData) {
             rData = this.cusTtlSrv.getGlobalCustom(user);

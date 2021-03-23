@@ -20,8 +20,6 @@ import { StorageModule } from './storage/storage.module';
   controllers: [
     
   ],
-  providers: [
-    
-  ],
+  providers: [],
 })
 export class AppModule {}

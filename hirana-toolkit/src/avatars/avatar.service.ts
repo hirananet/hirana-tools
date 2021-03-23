@@ -1,3 +1,4 @@
+import { environments } from 'src/environment';
 import { environments } from './../environment';
 import { StorageService } from './../storage/storage.service';
 import { CacheService } from './../cache/cache.service';
@@ -68,7 +69,7 @@ export class AvatarService {
     private getDefault() {
         return {
             type: 'image/png',
-            body: fs.readFileSync('resources/default.png')
+            body: fs.readFileSync(environments.resourcesLocation + '/default.png')
         }
     }
 
