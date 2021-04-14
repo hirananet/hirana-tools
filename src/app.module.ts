@@ -6,6 +6,7 @@ import { CustomTitlesModule } from './custom-titles/custom-titles.module';
 import { UriProcessorModule } from './uri-processor/uri-processor.module';
 import { CacheModule } from './cache/cache.module';
 import { StorageModule } from './storage/storage.module';
+import { MetricCollectorService } from './utils/metric-collector/metric-collector.service';
 
 @Module({
   imports: [
@@ -20,6 +21,8 @@ import { StorageModule } from './storage/storage.module';
   controllers: [
     
   ],
-  providers: [],
+  providers: [
+    MetricCollectorService
+  ],
 })
 export class AppModule {}

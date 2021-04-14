@@ -24,4 +24,5 @@ export const environments = {
     gcStorageKey: 'global-custom',
     imgurApiClientID: process.env.IMGUR_CLIENT_ID ? process.env.IMGUR_CLIENT_ID : '',
     imgurApiURL: 'https://api.imgur.com/3/upload',
+    elasticHOST: process.env.ELASTIC_HOST ? process.env.ELASTIC_HOST : ''
 };
