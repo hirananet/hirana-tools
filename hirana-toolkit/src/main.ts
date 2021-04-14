@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn']
+    // logger: ['error', 'warn']
   });
   app.enableCors();
   app.use(bodyParser.json({limit: '50mb'}));
