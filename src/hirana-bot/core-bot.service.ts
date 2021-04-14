@@ -1,3 +1,4 @@
+import { CacheService } from './../cache/cache.service';
 import { environments } from 'src/environment';
 import { Injectable } from '@nestjs/common';
 import * as NodeIRC from 'irc';
@@ -10,7 +11,7 @@ export class CoreBotService {
 
     private channelUsersPrivileges = { };
 
-    constructor(private storageSrv: StorageService) {
+    constructor(private storageSrv: StorageService, private cacheSrv: CacheService) {
         if(environments.bot.enabled) {
             this.client = new NodeIRC.Client(environments.bot.server, environments.bot.botName, {
                 channels: environments.bot.channels
@@ -131,6 +132,7 @@ export class CoreBotService {
                             type
                         };
                         this.getAvatars().save();
+                        this.clearCacheAvatar(nick);
                         this.client.say(nick, 'Avatar updated.');
                     } else {
                         this.client.say(nick, 'Invalid link.');
@@ -139,6 +141,13 @@ export class CoreBotService {
                     this.client.join(dataPart[1]);
                 }
             }
+        });
+    }
+
+    private clearCacheAvatar(nick: string) {
+        this.cacheSrv.setCache(environments.avatarStorageKey, {
+            key: nick,
+            data: undefined
         });
     }
 }

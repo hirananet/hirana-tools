@@ -1,14 +1,14 @@
 export const environments = {
     bot: {
         enabled: true,
-        channels: [
+        channels: process.env.CHANNELS ? process.env.CHANNELS.split(',') : [
             "#main",
             "#underc0de"
         ],
         server: "irc.hirana.net",
-        botName: "HiranaBot",
-        password: '',
-        owners: [
+        botName: process.env.BOTNAME ? process.env.BOTNAME : "HiranaBot",
+        password: process.env.PASSWORD ? process.env.PASSWORD : '',
+        owners: process.env.OWNERS ? process.env.OWNERS.split(',') : [
             "alex",
             "gabriela-"
         ]
