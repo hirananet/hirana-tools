@@ -22,4 +22,6 @@ export const environments = {
     urlMaxBodyLength: 35000,
     rcStorageKey: 'rangos-custom',
     gcStorageKey: 'global-custom',
+    imgurApiClientID: process.env.IMGUR_CLIENT_ID ? process.env.IMGUR_CLIENT_ID : '',
+    imgurApiURL: 'https://api.imgur.com/3/upload',
 };
