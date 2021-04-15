@@ -29,6 +29,7 @@ export class MetricCollectorService {
             const MM = (date.getMonth()+1) > 9 ? (date.getMonth()+1) : '0' + (date.getMonth()+1);
             const DD = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
             const HH = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
+            this.logger.log('Metric with key: ' + metricName +'-'+YYYY+'.'+MM+'.'+DD+'.'+HH);
             this.esclient.index({
                 index: metricName+'-'+YYYY+'.'+MM+'.'+DD+'.'+HH,
                 type: '_doc',
