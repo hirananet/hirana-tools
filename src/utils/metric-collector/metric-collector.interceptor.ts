@@ -18,9 +18,9 @@ export class MetricCollectorInterceptor implements NestInterceptor {
     const httpContext = context.switchToHttp();
     const req = httpContext.getRequest();
     const resp = httpContext.getResponse();
-    console.log('responding', Math.floor(resp.status()/10) + 'x');
+    console.log('responding', resp);
     this.metricCollector.writeMetric('http', {
-      method: req.getRequest().method,
+      method: req.method,
       status: Math.floor(resp.status()/10) + 'x'
     },{
       endpoint: req.url
