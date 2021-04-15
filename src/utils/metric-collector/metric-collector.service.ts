@@ -30,7 +30,7 @@ export class MetricCollectorService {
             this.logger.error('Unable to reach Elasticsearch cluster', err);
         });
         
-        this.influx = new InfluxDB('http://hirana-write:hirana-write_password@srv-captain--hirana-tools-idb-db:8086/hirana-db');
+        this.influx = new InfluxDB('http://srv-captain--hirana-tools-idb-db:8086/hirana-db');
     }
 
     public writeMetric(metricName: string, tags: {[key: string]: any}) {
