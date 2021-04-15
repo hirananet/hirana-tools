@@ -1,3 +1,4 @@
+import { MetricCollectorService } from 'src/utils/metric-collector/metric-collector.service';
 import { environments } from './../environment';
 import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { CacheService, DataStore } from 'src/cache/cache.service';
@@ -12,7 +13,9 @@ export class UriProcService {
 
     private readonly logger = new Logger(UriProcService.name);
 
-    constructor(private cacheService: CacheService, private httpService: HttpService) {
+    constructor(private cacheService: CacheService,
+                private httpService: HttpService,
+                private metricC: MetricCollectorService) {
         this.cacheService.initMemoryCache(environments.urlCacheKey)
     }
 

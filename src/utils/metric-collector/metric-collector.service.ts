@@ -39,7 +39,7 @@ export class MetricCollectorService {
                     format: "strict_date_optional_time||epoch_millis"
                 }
             };
-            tags.serverDate = date.toISOString();
+            tags.date = date.toISOString();
             this.esclient.index({
                 index: metricName+'-'+YYYY+'.'+MM+'.'+DD+'.'+HH,
                 type: '_doc',
