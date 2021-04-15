@@ -18,17 +18,17 @@ export class MetricCollectorService {
     private readonly metricType = environments.metricType;
 
     constructor() {
-        this.esclient = new elasticsearch.Client({
-            host: environments.elasticHOST,
-            deadTimeout: 3000,
-            maxRetries: 5
-        });
-        this.esclient.ping({ requestTimeout: 3000 }).then(() => {
+        // this.esclient = new elasticsearch.Client({
+        //     host: environments.elasticHOST,
+        //     deadTimeout: 3000,
+        //     maxRetries: 5
+        // });
+        // this.esclient.ping({ requestTimeout: 3000 }).then(() => {
 
-        })
-        .catch(err => { 
-            this.logger.error('Unable to reach Elasticsearch cluster', err);
-        });
+        // })
+        // .catch(err => { 
+        //     this.logger.error('Unable to reach Elasticsearch cluster', err);
+        // });
         
         this.influx = new InfluxDB('http://srv-captain--hirana-metrics-db:8086/metrics');
     }
@@ -51,11 +51,11 @@ export class MetricCollectorService {
                 }
             };
             tags.serverDate = date.toISOString();
-            this.esclient.index({
-                index: metricName+'-'+YYYY+'.'+MM+'.'+DD+HH,
-                type: '_doc',
-                body: tags,
-            });
+            // this.esclient.index({
+            //     index: metricName+'-'+YYYY+'.'+MM+'.'+DD+HH,
+            //     type: '_doc',
+            //     body: tags,
+            // });
         } catch(err) {
             this.logger.error('Can\t write metric', err);
         }

@@ -8,7 +8,8 @@ export class MetricTestController {
         this.metricCollector.setMetricSchema('metric-test', { // tags:
             status: ['ok', 'nok']
         },{ // Data of this request:
-            response: SchemaDataType.STRING
+            response: SchemaDataType.STRING,
+            test: SchemaDataType.BOOLEAN
         });
     }
 
@@ -23,7 +24,8 @@ export class MetricTestController {
         this.metricCollector._writeMetric('metric-test', {
             status: Math.random() > 0.5 ? 'ok' : 'nok'
         }, {
-            response: 'DONE'
+            response: Math.random() > 0.5 ? 'DONE' : 'NODONE',
+            test: Math.random() > 0.5
         });
         return '"DONE"';
     }
