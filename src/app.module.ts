@@ -22,7 +22,6 @@ import { MetricCollectorService } from './utils/metric-collector/metric-collecto
     
   ],
   providers: [
-    MetricCollectorService
   ],
 })
 export class AppModule {}

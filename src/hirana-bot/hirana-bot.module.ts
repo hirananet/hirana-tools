@@ -1,3 +1,4 @@
+import { CacheModule } from './../cache/cache.module';
 import { Module } from '@nestjs/common';
 import { StorageModule } from 'src/storage/storage.module';
 import { CoreBotService } from './core-bot.service';
@@ -7,7 +8,8 @@ import { CoreBotService } from './core-bot.service';
     CoreBotService
   ],
   imports: [
-    StorageModule
+    StorageModule,
+    CacheModule
   ]
 })
 export class HiranaBotModule {}
