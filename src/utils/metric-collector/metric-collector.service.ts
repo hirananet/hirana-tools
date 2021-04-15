@@ -24,11 +24,15 @@ export class MetricCollectorService {
 
     public writeMetric(metricName: string, tags: {[key: string]: string}) {
         try {
+            const date = new Date();
+            const YYYY = date.getFullYear();
+            const MM = (date.getMonth()+1) > 9 ? (date.getMonth()+1) : '0' + (date.getMonth()+1);
+            const DD = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
+            const HH = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
             this.esclient.index({
-                index: metricName,
+                index: metricName+'-'+YYYY+'.'+MM+'.'+DD+'.'+HH,
                 type: '_doc',
-                body: tags,
-                timestamp: new Date()
+                body: tags
             });
         } catch(err) {
             this.logger.error('Can\t write metric', err);
