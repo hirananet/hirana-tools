@@ -7,6 +7,7 @@ import { UriProcessorModule } from './uri-processor/uri-processor.module';
 import { CacheModule } from './cache/cache.module';
 import { StorageModule } from './storage/storage.module';
 import { MetricCollectorService } from './utils/metric-collector/metric-collector.service';
+import { MetricTestModule } from './metric-test/metric-test.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { MetricCollectorService } from './utils/metric-collector/metric-collecto
     HiranaBotModule,
     ImgurApiModule,
     CacheModule,
-    StorageModule
+    StorageModule,
+    MetricTestModule
   ],
   controllers: [
     
