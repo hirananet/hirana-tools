@@ -10,6 +10,8 @@ export class MetricCollectorService {
 
     private readonly esclient: elasticsearch.Client;
 
+    private readonly metricType = environments.metricType;
+
     constructor() {
         this.esclient = new elasticsearch.Client({
             host: environments.elasticHOST,
@@ -30,7 +32,10 @@ export class MetricCollectorService {
             const YYYY = date.getUTCFullYear();
             const MM = (date.getUTCMonth()+1) > 9 ? (date.getUTCMonth()+1) : '0' + (date.getUTCMonth()+1);
             const DD = date.getUTCDate() > 9 ? date.getUTCDate() : '0' + date.getUTCDate();
-            const HH = date.getUTCHours() > 9 ? date.getUTCHours() : '0' + date.getUTCHours();
+            let HH = '';
+            if(this.metricType == 'HOURLY') {
+                HH = '.'+(date.getUTCHours() > 9 ? date.getUTCHours() : '0' + date.getUTCHours());
+            }
             tags.properties = {
                 serverDate: {
                     type: "date",
@@ -40,7 +45,7 @@ export class MetricCollectorService {
             };
             tags.serverDate = date.toISOString();
             this.esclient.index({
-                index: metricName+'-'+YYYY+'.'+MM+'.'+DD+'.'+HH,
+                index: metricName+'-'+YYYY+'.'+MM+'.'+DD+HH,
                 type: '_doc',
                 body: tags,
             });

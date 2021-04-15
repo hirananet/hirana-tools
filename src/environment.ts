@@ -25,5 +25,6 @@ export const environments = {
     imgurApiClientID: process.env.IMGUR_CLIENT_ID ? process.env.IMGUR_CLIENT_ID : '',
     imgurApiURL: 'https://api.imgur.com/3/upload',
     imgurHttpTimeout: 3000,
-    elasticHOST: process.env.ELASTIC_HOST ? process.env.ELASTIC_HOST : ''
+    elasticHOST: process.env.ELASTIC_HOST ? process.env.ELASTIC_HOST : '',
+    metricType: process.env.METRIC_TYPE ? process.env.METRIC_TYPE : 'DAILY' // HOURLY
 };
