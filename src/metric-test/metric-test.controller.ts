@@ -15,13 +15,13 @@ export class MetricTestController {
 
     @Post()
     writeMetric(@Body() tags) {
-        this.metricCollector._writeMetric('metric-test', tags);
+        this.metricCollector.writeMetric('metric-test', tags);
         return '"DONE"';
     }
 
     @Get() 
     writeMetricAlt() {
-        this.metricCollector._writeMetric('metric-test', {
+        this.metricCollector.writeMetric('metric-test', {
             status: Math.random() > 0.5 ? 'ok' : 'nok'
         }, {
             response: Math.random() > 0.5 ? 'DONE' : 'NODONE',
