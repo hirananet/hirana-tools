@@ -6,6 +6,8 @@ import { CustomTitlesModule } from './custom-titles/custom-titles.module';
 import { UriProcessorModule } from './uri-processor/uri-processor.module';
 import { CacheModule } from './cache/cache.module';
 import { StorageModule } from './storage/storage.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { MetricCollectorInterceptor } from './utils/metric-collector/metric-collector.interceptor';
 
 @Module({
   imports: [
@@ -21,6 +23,11 @@ import { StorageModule } from './storage/storage.module';
     
   ],
   providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MetricCollectorInterceptor
+    }
   ],
 })
-export class AppModule {}
+export class AppModule {
+}
