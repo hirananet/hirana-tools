@@ -1,4 +1,4 @@
-import { MetricCollectorService } from 'src/utils/metric-collector/metric-collector.service';
+import { MetricCollectorService, SchemaDataType } from 'src/utils/metric-collector/metric-collector.service';
 import { environments } from './../environment';
 import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { CacheService, DataStore } from 'src/cache/cache.service';
@@ -15,8 +15,14 @@ export class UriProcService {
 
     constructor(private cacheService: CacheService,
                 private httpService: HttpService,
-                private metricC: MetricCollectorService) {
+                private metricCollector: MetricCollectorService) {
         this.cacheService.initMemoryCache(environments.urlCacheKey)
+        this.metricCollector.setMetricSchema('hirana.tools.uriProcessor', { // tags:
+            fetchType: ['fetch', 'wait-prefetch', 'cache'],
+            error: ['yes', 'no'],
+        },{ // Data of this request:
+            origin: SchemaDataType.INTEGER
+        });
     }
 
     public getDetailOf(url: string): Promise<{title: string, favicon: string, status: string}> {
@@ -24,13 +30,22 @@ export class UriProcService {
         return new Promise<{title: string, favicon: string, status: string}>((res, rej) => {
             const dataCached = this.getCache(url);
             if(dataCached?.status === 'fetching') {
-                // suscribirse al fetching
-                this.logger.log('Waiting for previous fetch', url);
+                this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                    fetchType: 'wait-prefetch',
+                    error: 'no'
+                }, {
+                    origin: (new URL(url)).hostname
+                });
                 dataCached.emitter.subscribe(r => {
                     res(r);
                 });
             } else if(dataCached?.status === 'ok') {
-                this.logger.log('In cache', url);
+                this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                    fetchType: 'cache',
+                    error: 'no'
+                }, {
+                    origin: (new URL(url)).hostname
+                });
                 res(dataCached);
             } else {
                 let nData = {
@@ -38,7 +53,6 @@ export class UriProcService {
                     favicon: '',
                     status: 'fetching',
                     emitter: Rx.Observable.create((observer) => {
-                        this.logger.log('Fetching', url);
                         this.httpService.get(url).subscribe(response => {
                             const dom = new JSDOM(response.data);
                             nData.title = dom.window.document.title;
@@ -57,10 +71,21 @@ export class UriProcService {
                             nData.status = 'ok';
                             delete nData.emitter;
                             this.setCache(url, nData);
-                            this.logger.log('Fetched ok.', JSON.stringify(nData));
+                            this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                                fetchType: 'fetch',
+                                error: 'no'
+                            }, {
+                                origin: (new URL(url)).hostname
+                            });
                             observer.next(nData);
                             observer.complete();
                         }, err => {
+                            this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                                fetchType: 'fetch',
+                                error: 'yes'
+                            }, {
+                                origin: (new URL(url)).hostname
+                            });
                             this.logger.error('Error fetching: ' + url, err);
                             nData.status = 'failed';
                             delete nData.emitter;
