@@ -46,7 +46,7 @@ export class AvatarService {
                     this.httpService.get(url, {
                         responseType: 'arraybuffer'
                     }).subscribe(d => {
-                        this.metricCollector.writeMetric('hirana.tools.getAvatar', {inCache: 'no', stored: 'yes', error: 'no'}, {fileSize: user.data.length, fileType: user.type});
+                        this.metricCollector.writeMetric('hirana.tools.getAvatar', {inCache: 'no', stored: 'yes', error: 'no'}, {fileSize: d.data?.length, fileType: user.type});
                         this.setCache(nick, {
                             tdata: user.type ? user.type : 'image/png',
                             bdata: d.data
@@ -56,7 +56,7 @@ export class AvatarService {
                             body: d.data
                         });
                     }, e => {
-                        this.metricCollector.writeMetric('hirana.tools.getAvatar', {inCache: 'no', stored: 'yes', error: 'yes'}, {fileSize: user.data.length, fileType: user.type});
+                        this.metricCollector.writeMetric('hirana.tools.getAvatar', {inCache: 'no', stored: 'yes', error: 'yes'}, {fileSize: 0, fileType: user.type});
                         this.logger.error('Error getting avatar of: '+nick+' in url: ' + url, e);
                         res(this.getDefault());
                     });
