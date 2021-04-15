@@ -25,5 +25,7 @@ export const environments = {
     imgurApiClientID: process.env.IMGUR_CLIENT_ID ? process.env.IMGUR_CLIENT_ID : '',
     imgurApiURL: 'https://api.imgur.com/3/upload',
     imgurHttpTimeout: 3000,
-    influxDB: process.env.INFLUX_DB ? process.env.INFLUX_DB : ''
+    // metric collector:
+    influxDB: process.env.INFLUX_DB ? process.env.INFLUX_DB : '',
+    appMetricID: 'hirana.tools'
 };

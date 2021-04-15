@@ -17,7 +17,7 @@ export class UriProcService {
                 private httpService: HttpService,
                 private metricCollector: MetricCollectorService) {
         this.cacheService.initMemoryCache(environments.urlCacheKey)
-        this.metricCollector.setMetricSchema('hirana.tools.uriProcessor', { // tags:
+        this.metricCollector.setMetricSchema('uriProcessor', { // tags:
             fetchType: ['fetch', 'wait-prefetch', 'cache'],
             error: ['yes', 'no'],
         },{ // Data of this request:
@@ -30,7 +30,7 @@ export class UriProcService {
         return new Promise<{title: string, favicon: string, status: string}>((res, rej) => {
             const dataCached = this.getCache(url);
             if(dataCached?.status === 'fetching') {
-                this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                this.metricCollector.writeMetric('uriProcessor', {
                     fetchType: 'wait-prefetch',
                     error: 'no'
                 }, {
@@ -40,7 +40,7 @@ export class UriProcService {
                     res(r);
                 });
             } else if(dataCached?.status === 'ok') {
-                this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                this.metricCollector.writeMetric('uriProcessor', {
                     fetchType: 'cache',
                     error: 'no'
                 }, {
@@ -71,7 +71,7 @@ export class UriProcService {
                             nData.status = 'ok';
                             delete nData.emitter;
                             this.setCache(url, nData);
-                            this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                            this.metricCollector.writeMetric('uriProcessor', {
                                 fetchType: 'fetch',
                                 error: 'no'
                             }, {
@@ -80,7 +80,7 @@ export class UriProcService {
                             observer.next(nData);
                             observer.complete();
                         }, err => {
-                            this.metricCollector.writeMetric('hirana.tools.uriProcessor', {
+                            this.metricCollector.writeMetric('uriProcessor', {
                                 fetchType: 'fetch',
                                 error: 'yes'
                             }, {

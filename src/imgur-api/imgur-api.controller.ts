@@ -7,7 +7,7 @@ import { MetricCollectorService, SchemaDataType } from 'src/utils/metric-collect
 export class ImgurApiController {
 
     constructor(private imgurSrv: ImgurService, private metricCollector: MetricCollectorService) {
-        this.metricCollector.setMetricSchema('hirana.tools.imgurApi', { // tags:
+        this.metricCollector.setMetricSchema('imgurApi', { // tags:
             error: ['no', 'yes'],
             status: ['OK', 'BAD_REQUEST', 'BAD_GATEWAY']
         },{ // Data of this request:
@@ -21,14 +21,14 @@ export class ImgurApiController {
         this.imgurSrv.uploadToImgur(body.image).subscribe(r => {
             if(r.data.data) {
                 response.send({image: r.data.data.link});
-                this.metricCollector.writeMetric('imgur-api', {error: 'no'}, {link: r.data.data.link, status: 'OK'});
+                this.metricCollector.writeMetric('imgurApi', {error: 'no'}, {link: r.data.data.link, status: 'OK'});
             } else {
                 response.status(400).send({error: 'IMGUR RESPONSE FORMAT ERROR.'});
-                this.metricCollector.writeMetric('imgur-api', {error: 'yes'}, {etype: 'INVALID-FORMAT', status: 'BAD_REQUEST'});
+                this.metricCollector.writeMetric('imgurApi', {error: 'yes'}, {etype: 'INVALID-FORMAT', status: 'BAD_REQUEST'});
             }
         }, e => {
             response.status(502).send({error: 'IMGUR ERROR.'});
-            this.metricCollector.writeMetric('imgur-api', {error: 'yes'}, {etype: 'IMGUR-SERVICE-ERROR', status: 'BAD_GATEWAY'});
+            this.metricCollector.writeMetric('imgurApi', {error: 'yes'}, {etype: 'IMGUR-SERVICE-ERROR', status: 'BAD_GATEWAY'});
         })
     }
 
