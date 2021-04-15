@@ -31,6 +31,7 @@
     "@types/jsdom": "^16.2.7",
     "elasticsearch": "^16.7.2",
     "form-data": "^4.0.0",
+    "influxdb-nodejs": "^3.1.0",
     "irc": "^0.5.2",
     "jsdom": "^16.5.0",
     "reflect-metadata": "^0.1.13",
