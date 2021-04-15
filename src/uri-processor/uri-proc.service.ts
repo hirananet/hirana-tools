@@ -26,7 +26,7 @@ export class UriProcService {
     }
 
     public getDetailOf(url: string): Promise<{title: string, favicon: string, status: string}> {
-        this.logger.log('Request URL data ', url);
+        this.logger.log(new URL(url), 'Request URL data ');
         return new Promise<{title: string, favicon: string, status: string}>((res, rej) => {
             const dataCached = this.getCache(url);
             if(dataCached?.status === 'fetching') {

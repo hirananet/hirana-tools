@@ -1,22 +1,33 @@
 import { Injectable } from '@nestjs/common';
+import { MetricCollectorService, SchemaDataType } from 'src/utils/metric-collector/metric-collector.service';
 
 @Injectable()
 export class CacheService {
 
     private memoryCache: CacheContainer = {};
 
-    constructor() { }
+    constructor(private metricCollector: MetricCollectorService) {
+        this.metricCollector.setMetricSchema('hirana.tools.cache', { // tags:
+            result: ['found', 'saved', 'unresolved'],
+        },{ // Data of this request:
+            cachedElements: SchemaDataType.INTEGER,
+            container: SchemaDataType.STRING
+        });
+    }
 
     public initMemoryCache(container: string) {
         this.memoryCache[container] = {};
     }
 
     public getCache(container: string, key: string) {
+        const result = this.memoryCache[container] && this.memoryCache[container][key] ? 'found' : 'unresolved';
+        this.metricCollector.writeMetric('hirana.tools.cache', {result}, {cachedElements: Object.entries(this.memoryCache[container]).length, container});
         return this.memoryCache[container][key];
     }
 
-    public setCache(container: string, data: DataStore) {
-        return this.memoryCache[container][data.key] = data.data;
+    public setCache(container: string, data: DataStore): void {
+        this.memoryCache[container][data.key] = data.data;
+        this.metricCollector.writeMetric('hirana.tools.cache', {result: 'saved'}, {cachedElements: Object.entries(this.memoryCache[container]).length, container});
     }
 
 }
