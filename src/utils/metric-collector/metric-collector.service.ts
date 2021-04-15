@@ -1,32 +1,38 @@
 import { environments } from 'src/environment';
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import * as elasticsearch from 'elasticsearch';
 
 
 @Injectable()
 export class MetricCollectorService {
 
+    private readonly logger = new Logger(MetricCollectorService.name);
+
     private readonly esclient: elasticsearch.Client;
 
     constructor() {
         this.esclient = new elasticsearch.Client({
-            host: environments.elasticHOST
+            host: environments.elasticHOST,
+            log: 'trace',
+            deadTimeout: 3000,
+            maxRetries: 5
         });
         this.esclient.ping({ requestTimeout: 3000 })
         .catch(err => { 
-            throw new HttpException({
-                status: 'error',
-                message: 'Unable to reach Elasticsearch cluster'
-             }, 500); 
+            this.logger.error('Unable to reach Elasticsearch cluster', err);
          });
     }
 
     public writeMetric(metricName: string, tags: {[key: string]: string}) {
-        this.esclient.index({
-            index: metricName,
-            type: '_doc',
-            body: tags
-        });
+        try {
+            this.esclient.index({
+                index: metricName,
+                type: '_doc',
+                body: tags
+            });
+        } catch(err) {
+            this.logger.error('Can\t write metric', err);
+        }
     }
 
 }
