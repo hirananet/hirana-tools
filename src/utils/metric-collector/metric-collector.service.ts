@@ -31,7 +31,6 @@ export class MetricCollectorService {
             const MM = (date.getUTCMonth()+1) > 9 ? (date.getUTCMonth()+1) : '0' + (date.getUTCMonth()+1);
             const DD = date.getUTCDate() > 9 ? date.getUTCDate() : '0' + date.getUTCDate();
             const HH = date.getUTCHours() > 9 ? date.getUTCHours() : '0' + date.getUTCHours();
-            this.logger.log('Metric with key: ' + metricName +'-'+YYYY+'.'+MM+'.'+DD+'.'+HH);
             tags.properties = {
                 serverDate: {
                     type: "date",
@@ -39,7 +38,7 @@ export class MetricCollectorService {
                     format: "strict_date_optional_time||epoch_millis"
                 }
             };
-            tags.date = date.toISOString();
+            tags.serverDate = date.toISOString();
             this.esclient.index({
                 index: metricName+'-'+YYYY+'.'+MM+'.'+DD+'.'+HH,
                 type: '_doc',
