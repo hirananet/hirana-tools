@@ -16,13 +16,15 @@ export class MetricCollectorService {
             deadTimeout: 3000,
             maxRetries: 5
         });
-        this.esclient.ping({ requestTimeout: 3000 })
+        this.esclient.ping({ requestTimeout: 3000 }).then(() => {
+
+        })
         .catch(err => { 
             this.logger.error('Unable to reach Elasticsearch cluster', err);
          });
     }
 
-    public writeMetric(metricName: string, tags: {[key: string]: string}) {
+    public writeMetric(metricName: string, tags: {[key: string]: any}) {
         try {
             const date = new Date();
             const YYYY = date.getUTCFullYear();
@@ -30,10 +32,18 @@ export class MetricCollectorService {
             const DD = date.getUTCDate() > 9 ? date.getUTCDate() : '0' + date.getUTCDate();
             const HH = date.getUTCHours() > 9 ? date.getUTCHours() : '0' + date.getUTCHours();
             this.logger.log('Metric with key: ' + metricName +'-'+YYYY+'.'+MM+'.'+DD+'.'+HH);
+            tags.properties = {
+                serverDate: {
+                    type: "date",
+                    index: "true",
+                    format: "strict_date_optional_time||epoch_millis"
+                }
+            };
+            tags.serverDate = date.toISOString();
             this.esclient.index({
                 index: metricName+'-'+YYYY+'.'+MM+'.'+DD+'.'+HH,
                 type: '_doc',
-                body: tags
+                body: tags,
             });
         } catch(err) {
             this.logger.error('Can\t write metric', err);
