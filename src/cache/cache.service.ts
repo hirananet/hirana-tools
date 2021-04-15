@@ -5,9 +5,7 @@ export class CacheService {
 
     private memoryCache: CacheContainer = {};
 
-    constructor() {
-        
-    }
+    constructor() { }
 
     public initMemoryCache(container: string) {
         this.memoryCache[container] = {};
