@@ -21,7 +21,7 @@ export class UriProcService {
             fetchType: ['fetch', 'wait-prefetch', 'cache'],
             error: ['yes', 'no'],
         },{ // Data of this request:
-            origin: SchemaDataType.INTEGER
+            origin: SchemaDataType.STRING
         });
     }
 
