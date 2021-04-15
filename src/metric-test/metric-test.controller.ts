@@ -13,6 +13,7 @@ export class MetricTestController {
     @Post()
     writeMetric(@Body() tags) {
         this.metricCollector._writeMetric('metric-test', tags);
+        return '"DONE"';
     }
 
     @Get() 
@@ -20,6 +21,7 @@ export class MetricTestController {
         this.metricCollector._writeMetric('metric-test', {
             status: Math.random() > 0.5 ? 'ok' : 'nok'
         });
+        return '"DONE"';
     }
 
 }
