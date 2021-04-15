@@ -1,26 +1,34 @@
 import { ImgurService } from './imgur.service';
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { MetricCollectorService } from 'src/utils/metric-collector/metric-collector.service';
+import { MetricCollectorService, SchemaDataType } from 'src/utils/metric-collector/metric-collector.service';
 
 @Controller('upload')
 export class ImgurApiController {
 
-    constructor(private imgurSrv: ImgurService, private metricCollector: MetricCollectorService) { }
+    constructor(private imgurSrv: ImgurService, private metricCollector: MetricCollectorService) {
+        this.metricCollector.setMetricSchema('hirana.tools.imgurApi', { // tags:
+            error: ['no', 'yes'],
+            status: ['OK', 'BAD_REQUEST', 'BAD_GATEWAY']
+        },{ // Data of this request:
+            link: SchemaDataType.INTEGER,
+            etype: SchemaDataType.INTEGER
+        });
+    }
 
     @Post()
     public name(@Res() response: Response, @Body() body: ImageInput) {
         this.imgurSrv.uploadToImgur(body.image).subscribe(r => {
             if(r.data.data) {
                 response.send({image: r.data.data.link});
-                this.metricCollector.writeMetric('imgur-api', {status: 'OK'});
+                this.metricCollector.writeMetric('imgur-api', {error: 'no'}, {link: r.data.data.link, status: 'OK'});
             } else {
                 response.status(400).send({error: 'IMGUR RESPONSE FORMAT ERROR.'});
-                this.metricCollector.writeMetric('imgur-api', {status: 'NOK'});
+                this.metricCollector.writeMetric('imgur-api', {error: 'yes'}, {etype: 'INVALID-FORMAT', status: 'BAD_REQUEST'});
             }
         }, e => {
-            response.status(500).send({error: 'IMGUR ERROR.'});
-            this.metricCollector.writeMetric('imgur-api', {status: 'ERROR'});
+            response.status(502).send({error: 'IMGUR ERROR.'});
+            this.metricCollector.writeMetric('imgur-api', {error: 'yes'}, {etype: 'IMGUR-SERVICE-ERROR', status: 'BAD_GATEWAY'});
         })
     }
 
