@@ -13,7 +13,6 @@ export class MetricCollectorService {
     constructor() {
         this.esclient = new elasticsearch.Client({
             host: environments.elasticHOST,
-            log: 'trace',
             deadTimeout: 3000,
             maxRetries: 5
         });
@@ -28,7 +27,8 @@ export class MetricCollectorService {
             this.esclient.index({
                 index: metricName,
                 type: '_doc',
-                body: tags
+                body: tags,
+                timestamp: new Date()
             });
         } catch(err) {
             this.logger.error('Can\t write metric', err);
