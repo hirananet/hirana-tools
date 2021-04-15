@@ -1,3 +1,4 @@
+import { MetricCollectorModule } from 'src/utils/metric-collector/metric-collector.module';
 import { ImgurApiModule } from './imgur-api/imgur-api.module';
 import { HiranaBotModule } from './hirana-bot/hirana-bot.module';
 import { Module } from '@nestjs/common';
@@ -17,7 +18,8 @@ import { MetricCollectorInterceptor } from './utils/metric-collector/metric-coll
     HiranaBotModule,
     ImgurApiModule,
     CacheModule,
-    StorageModule
+    StorageModule,
+    MetricCollectorModule
   ],
   controllers: [
     
