@@ -25,10 +25,10 @@ export class MetricCollectorService {
     public writeMetric(metricName: string, tags: {[key: string]: string}) {
         try {
             const date = new Date();
-            const YYYY = date.getFullYear();
-            const MM = (date.getMonth()+1) > 9 ? (date.getMonth()+1) : '0' + (date.getMonth()+1);
-            const DD = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
-            const HH = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
+            const YYYY = date.getUTCFullYear();
+            const MM = (date.getUTCMonth()+1) > 9 ? (date.getUTCMonth()+1) : '0' + (date.getUTCMonth()+1);
+            const DD = date.getUTCDate() > 9 ? date.getUTCDate() : '0' + date.getUTCDate();
+            const HH = date.getUTCHours() > 9 ? date.getUTCHours() : '0' + date.getUTCHours();
             this.logger.log('Metric with key: ' + metricName +'-'+YYYY+'.'+MM+'.'+DD+'.'+HH);
             this.esclient.index({
                 index: metricName+'-'+YYYY+'.'+MM+'.'+DD+'.'+HH,
