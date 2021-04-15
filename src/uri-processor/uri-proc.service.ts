@@ -26,8 +26,7 @@ export class UriProcService {
     }
 
     public getDetailOf(url: string): Promise<{title: string, favicon: string, status: string}> {
-        this.logger.log('Request URL data ');
-        console.log(new URL(url));
+        this.logger.log('Request URL data ' + urlParser.parse(url).hostname);
         return new Promise<{title: string, favicon: string, status: string}>((res, rej) => {
             const dataCached = this.getCache(url);
             if(dataCached?.status === 'fetching') {
@@ -35,7 +34,7 @@ export class UriProcService {
                     fetchType: 'wait-prefetch',
                     error: 'no'
                 }, {
-                    origin: (new URL(url)).hostname
+                    origin: urlParser.parse(url).hostname
                 });
                 dataCached.emitter.subscribe(r => {
                     res(r);
@@ -45,7 +44,7 @@ export class UriProcService {
                     fetchType: 'cache',
                     error: 'no'
                 }, {
-                    origin: (new URL(url)).hostname
+                    origin: urlParser.parse(url).hostname
                 });
                 res(dataCached);
             } else {
@@ -76,7 +75,7 @@ export class UriProcService {
                                 fetchType: 'fetch',
                                 error: 'no'
                             }, {
-                                origin: (new URL(url)).hostname
+                                origin: urlParser.parse(url).hostname
                             });
                             observer.next(nData);
                             observer.complete();
@@ -85,7 +84,7 @@ export class UriProcService {
                                 fetchType: 'fetch',
                                 error: 'yes'
                             }, {
-                                origin: (new URL(url)).hostname
+                                origin: urlParser.parse(url).hostname
                             });
                             this.logger.error('Error fetching: ' + url, err);
                             nData.status = 'failed';
