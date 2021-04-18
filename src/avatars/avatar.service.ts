@@ -43,7 +43,7 @@ export class AvatarService {
                 this.httpService.get(savedUser.url, {
                     responseType: 'text'
                 }).subscribe(d => {
-                    console.log('url', savedUser.url, 'data', Object.keys(d));
+                    console.log('url', savedUser.url, 'data', Object.keys(d.data));
                     const image = d.data;
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.type,
