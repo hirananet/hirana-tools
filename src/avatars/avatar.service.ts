@@ -44,7 +44,7 @@ export class AvatarService {
                     responseType: 'arraybuffer'
                 }).subscribe(d => {
                     const image = d.data.toString();
-                    console.log('url', savedUser.url, 'data', image.legnth);
+                    console.log('url', savedUser.url, 'data', typeof image, typeof d.data, image.legnth);
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.type,
                         size: image?.length ? image.length : 0
