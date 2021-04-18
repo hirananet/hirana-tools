@@ -1,3 +1,4 @@
+import { MetricCollectorService } from 'src/utils/core-utils/metric-collector/metric-collector.service';
 import { PublisherService } from './../utils/core-utils/publisher/publisher.service';
 import { SubscriberService } from './../utils/core-utils/subscriber/subscriber.service';
 import { environments } from 'src/environment';
@@ -17,7 +18,8 @@ export class UriProcService {
     constructor(private httpService: HttpService,
                 private cacheSrv: CacheRedisService,
                 private subSrv: SubscriberService,
-                private pubSrv: PublisherService) {
+                private pubSrv: PublisherService,
+                private metricCollector: MetricCollectorService) {
         this.subSrv.attach('url-processed').subscribe((d) => {
 
         })
@@ -31,16 +33,20 @@ export class UriProcService {
 
             if(cache) {
                 if(cache.ready) {
+                    this.metricCache('cached', urlChecksum, url);
                     res(cache);
                 } else {
                     this.logger.debug('Waiting previous transaction: ' + urlChecksum + '' + url);
+                    this.metricCache('waiting', urlChecksum, url);
                     // wait for ready cache.
                     this.subSrv.getSubscription('url-processed').pipe(first()).subscribe(async (d: any) => {
                         if(d.hash == urlChecksum) {
                             if(d.resolved) {
+                                this.metricCache('wait-resolved', urlChecksum, url);
                                 this.logger.debug('Resolved transaction: ' + urlChecksum + '' + url);
                                 res(await this.cacheSrv.getFromCache('url-'+urlChecksum, true));
                             } else {
+                                this.metricCache('wait-error', urlChecksum, url);
                                 this.logger.error('Failed async transaction: ' + urlChecksum + '' + url);
                                 rej('fail async-fetch.');
                             }
@@ -60,6 +66,7 @@ export class UriProcService {
                 // get data
                 this.httpService.get(url).subscribe(response => {
                     this.logger.debug('Fetched: ' + urlChecksum + '' + url);
+                    this.metricCache('fetched', urlChecksum, url);
                     const dom = new JSDOM(response.data);
                     data.title = dom.window.document.title;
                     const tq = dom.window.document.head.querySelector('link[rel=icon]');
@@ -91,6 +98,7 @@ export class UriProcService {
                         }
                     }
                 }, err => {
+                    this.metricCache('fetch-error', urlChecksum, url);
                     this.logger.error('Not fetched: ' + urlChecksum + '' + url);
                     this.logger.error(err);
                     if(cached) {
@@ -104,6 +112,15 @@ export class UriProcService {
                 });
             }
         });
+    }
+
+    private metricCache(status: string, checksum: string, url: string) {
+        this.metricCollector.writeMetric('uri-processor', {
+            checksum,
+            host: (new URL(url)).hostname
+        }, {
+            status
+        })
     }
 
 }
