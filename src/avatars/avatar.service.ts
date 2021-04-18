@@ -1,8 +1,7 @@
 import { environments } from 'src/environment';
 import { CacheRedisService } from './../utils/core-utils/cache-redis/cache-redis.service';
 import { KVSService } from './../utils/core-utils/kvs/kvs.service';
-import { environments } from './../environment';
-import { HttpService, Injectable, Logger, Body } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { MetricCollectorService } from 'src/utils/core-utils/metric-collector/metric-collector.service';
 
 const fs = require('fs');
