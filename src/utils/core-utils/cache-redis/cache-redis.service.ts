@@ -68,4 +68,12 @@ export class CacheRedisService {
         });
     }
 
+    /**
+     * 
+     * @param key delete key and value from cache.
+     */
+    public invalidate(key: string) {
+        return this.redisClient.del(key);
+    }
+
 }

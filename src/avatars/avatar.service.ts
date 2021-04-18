@@ -1,7 +1,10 @@
+import { environments } from 'src/environment';
+import { CacheRedisService } from './../utils/core-utils/cache-redis/cache-redis.service';
+import { KVSService } from './../utils/core-utils/kvs/kvs.service';
 import { environments } from './../environment';
-import { StorageService } from './../storage/storage.service';
-import { CacheService } from './../cache/cache.service';
-import { HttpService, Injectable, Logger } from '@nestjs/common';
+import { HttpService, Injectable, Logger, Body } from '@nestjs/common';
+import { MetricCollectorService } from 'src/utils/core-utils/metric-collector/metric-collector.service';
+
 const fs = require('fs');
 
 @Injectable()
@@ -10,62 +13,89 @@ export class AvatarService {
     private readonly logger = new Logger(AvatarService.name);
 
     constructor(
-        private cacheService: CacheService,
-        private storageService: StorageService,
+        private kvsSrv: KVSService,
+        private cacheSrv: CacheRedisService,
+        private metricCollector: MetricCollectorService,
         private httpService: HttpService
-    ) {
-        this.storageService.init(environments.avatarStorageKey);
-        this.cacheService.initMemoryCache(environments.avatarStorageKey);
-    }
+    ) { }
 
-    getAvatarOfUser(nick: string): Promise<{type, body}> {
-        return new Promise<{type: string, body: any}>((res, rej) => {
-            // tengo cacheado el avatar?
-            if(this.getCache(nick)) {
-                const userAvatar = this.getCache(nick);
-                res({
-                    type: userAvatar.tdata,
-                    body: userAvatar.bdata
+    async getAvatarOfUser(nick: string): Promise<{type, body}> {
+        return new Promise<{type: string, body: any}>(async (res, rej) => {
+            const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick);
+            if(cache) {
+                this.metricCollector.writeMetric('avatar-service', {
+                    type: cache.tdata,
+                    size: cache.bdata.length
+                }, {
+                    status: 'cached'
                 });
-            } else {
-                // tiene registrado un avatar?
-                if(this.getStorage().values[nick]) {
-                    const user = this.getStorage().values[nick];
-                    const url = user.url ? user.url : user;
-                    this.httpService.get(url, {
-                        responseType: 'arraybuffer'
-                    }).subscribe(d => {
-                        this.setCache(nick, {
-                            tdata: user.type ? user.type : 'image/png',
-                            bdata: d.data
-                        });
-                        res({
-                            type: user.type ? user.type : 'image/png',
-                            body: d.data
-                        });
-                    }, e => {
-                        this.logger.error('Error getting avatar of: '+nick+' in url: ' + url, e);
-                        res(this.getDefault());
-                    });
-                } else {
-                    const avatarURL = 'https://avatars.dicebear.com/api/jdenticon/' + nick + '.svg?options[colorful]=1';
-                    this.httpService.get(avatarURL, {
-                        responseType: 'text'
-                    }).subscribe(d => {
-                        this.setCache(nick, {
-                            tdata: 'image/svg+xml',
-                            bdata: d.data
-                        });
-                        res({
-                            type: 'image/svg+xml',
-                            body: d.data
-                        });
-                    }, e => {
-                        this.logger.error('Error getting JDenticon of: '+nick+' in url: ' + avatarURL, e);
-                        res(this.getDefault());
-                    });
+                return {
+                    type: cache.tdata,
+                    body: cache.bdata
                 }
             }
+
+            // este usuario tiene un avatar?:
+            const savedUser = await this.kvsSrv.get('avatar-' + nick, true);
+            if(savedUser) {
+                this.httpService.get(savedUser.url, {
+                    responseType: 'arraybuffer'
+                }).subscribe(d => {
+                    const image = d.data;
+                    this.metricCollector.writeMetric('avatar-service', {
+                        type: savedUser.tdata,
+                        size: image.length
+                    }, {
+                        status: 'fetched'
+                    });
+                    this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
+                        tdata: savedUser.tdata,
+                        bdata: image
+                    });
+                    res({
+                        type: savedUser.type ? savedUser.type : 'image/png',
+                        body: image
+                    });
+                }, e => {
+                    this.metricCollector.writeMetric('avatar-service', {
+                        type: savedUser.tdata,
+                        host: (new URL(savedUser.url)).hostname
+                    }, {
+                        status: 'fetched-error'
+                    });
+                    this.logger.error('Error getting avatar of: '+nick+' in url: ' + savedUser.url, e);
+                    res(this.getDefault());
+                });
+            }
+
+            // JDENTICON
+            const avatarURL = 'https://avatars.dicebear.com/api/jdenticon/' + nick + '.svg?options[colorful]=1';
+            this.httpService.get(avatarURL, {
+                responseType: 'text'
+            }).subscribe(d => {
+                this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.jdenticonTTL, {
+                    tdata: 'image/svg+xml',
+                    bdata: d.data
+                });
+                this.metricCollector.writeMetric('avatar-service', {
+                    size: d.data.length
+                }, {
+                    status: 'jdenticon-generated'
+                });
+                res({
+                    type: 'image/svg+xml',
+                    body: d.data
+                });
+            }, e => {
+                this.metricCollector.writeMetric('avatar-service', {
+                    nick
+                }, {
+                    status: 'jdenticon-error'
+                });
+                this.logger.error('Error getting JDenticon of: '+nick+' in url: ' + avatarURL, e);
+                res(this.getDefault());
+            });
+
         });
     }
 
@@ -74,21 +104,6 @@ export class AvatarService {
             type: 'image/png',
             body: fs.readFileSync(environments.resourcesLocation + '/default.png')
         }
-    }
-
-    private getCache(key: string) {
-        return this.cacheService.getCache(environments.avatarStorageKey, key);
-    }
-
-    private setCache(key: string, data: any) {
-        this.cacheService.setCache(environments.avatarStorageKey, {
-            key,
-            data
-        });
-    }
-
-    private getStorage() {
-        return this.storageService.get(environments.avatarStorageKey);
     }
 
 }
