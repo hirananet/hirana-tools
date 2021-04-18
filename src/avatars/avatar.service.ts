@@ -25,6 +25,7 @@ export class AvatarService {
             if(cache && cache.data) {
                 let body = cache.data;
                 if(typeof cache.data === 'object') {
+                    console.log('split size: ', cache.data.buffer.split(','));
                     body = Uint8Array.from(cache.data.buffer.split(','));
                 }
                 this.metricCollector.writeMetric('avatar-service', {
