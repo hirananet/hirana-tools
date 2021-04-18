@@ -13,7 +13,7 @@ export class AvatarsController {
         this.avatarSrv.getAvatarOfUser(user).then(r => {
             response.type(r.type);
             if(r.cached) {
-                response.setHeader('x-cached', 'transaction')
+                response.setHeader('X-Cached', 'true')
             }
             response.send(r.body);
         }).catch(e => {
