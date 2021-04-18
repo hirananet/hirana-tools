@@ -1,4 +1,3 @@
-import { MetricCollectorModule } from 'src/utils/metric-collector/metric-collector.module';
 import { environments } from './../environment';
 import { StorageModule } from './../storage/storage.module';
 import { AvatarsController } from './avatars.controller';
@@ -13,8 +12,7 @@ import { CacheModule } from 'src/cache/cache.module';
         HttpModule.register({
             timeout: environments.avatarHttpTimeout,
             maxRedirects: 5,
-        }),
-        MetricCollectorModule
+        })
     ],
     controllers: [
         AvatarsController

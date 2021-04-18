@@ -1,4 +1,3 @@
-import { MetricCollectorService, SchemaDataType } from 'src/utils/metric-collector/metric-collector.service';
 import { environments } from './../environment';
 import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { CacheService, DataStore } from 'src/cache/cache.service';
@@ -14,15 +13,8 @@ export class UriProcService {
     private readonly logger = new Logger(UriProcService.name);
 
     constructor(private cacheService: CacheService,
-                private httpService: HttpService,
-                private metricCollector: MetricCollectorService) {
+                private httpService: HttpService) {
         this.cacheService.initMemoryCache(environments.urlCacheKey)
-        this.metricCollector.setMetricSchema('uriProcessor', { // tags:
-            fetchType: ['fetch', 'wait-prefetch', 'cache'],
-            error: ['yes', 'no'],
-        },{ // Data of this request:
-            origin: SchemaDataType.STRING
-        });
     }
 
     public getDetailOf(url: string): Promise<{title: string, favicon: string, status: string}> {
@@ -30,22 +22,10 @@ export class UriProcService {
         return new Promise<{title: string, favicon: string, status: string}>((res, rej) => {
             const dataCached = this.getCache(url);
             if(dataCached?.status === 'fetching') {
-                this.metricCollector.writeMetric('uriProcessor', {
-                    fetchType: 'wait-prefetch',
-                    error: 'no'
-                }, {
-                    origin: urlParser.parse(url).hostname
-                });
                 dataCached.emitter.subscribe(r => {
                     res(r);
                 });
             } else if(dataCached?.status === 'ok') {
-                this.metricCollector.writeMetric('uriProcessor', {
-                    fetchType: 'cache',
-                    error: 'no'
-                }, {
-                    origin: urlParser.parse(url).hostname
-                });
                 res(dataCached);
             } else {
                 let nData = {
@@ -71,21 +51,9 @@ export class UriProcService {
                             nData.status = 'ok';
                             delete nData.emitter;
                             this.setCache(url, nData);
-                            this.metricCollector.writeMetric('uriProcessor', {
-                                fetchType: 'fetch',
-                                error: 'no'
-                            }, {
-                                origin: urlParser.parse(url).hostname
-                            });
                             observer.next(nData);
                             observer.complete();
                         }, err => {
-                            this.metricCollector.writeMetric('uriProcessor', {
-                                fetchType: 'fetch',
-                                error: 'yes'
-                            }, {
-                                origin: urlParser.parse(url).hostname
-                            });
                             this.logger.error('Error fetching: ' + url, err);
                             nData.status = 'failed';
                             delete nData.emitter;

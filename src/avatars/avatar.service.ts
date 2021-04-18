@@ -2,7 +2,6 @@ import { environments } from './../environment';
 import { StorageService } from './../storage/storage.service';
 import { CacheService } from './../cache/cache.service';
 import { HttpService, Injectable, Logger } from '@nestjs/common';
-import { MetricCollectorService, SchemaDataType } from 'src/utils/metric-collector/metric-collector.service';
 const fs = require('fs');
 
 @Injectable()
@@ -13,19 +12,10 @@ export class AvatarService {
     constructor(
         private cacheService: CacheService,
         private storageService: StorageService,
-        private httpService: HttpService,
-        private metricCollector: MetricCollectorService
+        private httpService: HttpService
     ) {
         this.storageService.init(environments.avatarStorageKey);
         this.cacheService.initMemoryCache(environments.avatarStorageKey);
-        this.metricCollector.setMetricSchema('getAvatar', { // tags:
-            inCache: ['yes', 'no'],
-            stored: ['yes', 'no', 'n/a'],
-            error: ['yes', 'no'],
-        },{ // Data of this request:
-            fileSize: SchemaDataType.INTEGER,
-            fileType: SchemaDataType.STRING
-        });
     }
 
     getAvatarOfUser(nick: string): Promise<{type, body}> {
@@ -33,7 +23,6 @@ export class AvatarService {
             // tengo cacheado el avatar?
             if(this.getCache(nick)) {
                 const userAvatar = this.getCache(nick);
-                this.metricCollector.writeMetric('getAvatar', {inCache: 'yes', stored: 'n/a', error: 'no'}, {fileSize: userAvatar.bdata.length, fileType: userAvatar.tdata});
                 res({
                     type: userAvatar.tdata,
                     body: userAvatar.bdata
@@ -46,7 +35,6 @@ export class AvatarService {
                     this.httpService.get(url, {
                         responseType: 'arraybuffer'
                     }).subscribe(d => {
-                        this.metricCollector.writeMetric('getAvatar', {inCache: 'no', stored: 'yes', error: 'no'}, {fileSize: d.data?.length, fileType: user.type});
                         this.setCache(nick, {
                             tdata: user.type ? user.type : 'image/png',
                             bdata: d.data
@@ -56,7 +44,6 @@ export class AvatarService {
                             body: d.data
                         });
                     }, e => {
-                        this.metricCollector.writeMetric('getAvatar', {inCache: 'no', stored: 'yes', error: 'yes'}, {fileSize: 0, fileType: user.type});
                         this.logger.error('Error getting avatar of: '+nick+' in url: ' + url, e);
                         res(this.getDefault());
                     });
@@ -65,7 +52,6 @@ export class AvatarService {
                     this.httpService.get(avatarURL, {
                         responseType: 'text'
                     }).subscribe(d => {
-                        this.metricCollector.writeMetric('getAvatar', {inCache: 'no', stored: 'no', error: 'no'}, {fileSize: d.data.length, fileType: 'JDENTICON'});
                         this.setCache(nick, {
                             tdata: 'image/svg+xml',
                             bdata: d.data
@@ -75,7 +61,6 @@ export class AvatarService {
                             body: d.data
                         });
                     }, e => {
-                        this.metricCollector.writeMetric('getAvatar', {inCache: 'no', stored: 'no', error: 'yes'}, {fileSize: 0, fileType: 'JDENTICON'});
                         this.logger.error('Error getting JDenticon of: '+nick+' in url: ' + avatarURL, e);
                         res(this.getDefault());
                     });

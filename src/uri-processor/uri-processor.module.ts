@@ -3,7 +3,6 @@ import { HttpModule, Module } from '@nestjs/common';
 import { UriProcessorController } from './uri-processor.controller';
 import { UriProcService } from './uri-proc.service';
 import { environments } from 'src/environment';
-import { MetricCollectorModule } from 'src/utils/metric-collector/metric-collector.module';
 
 @Module({
   imports: [
@@ -12,8 +11,7 @@ import { MetricCollectorModule } from 'src/utils/metric-collector/metric-collect
         maxRedirects: 5,
         maxBodyLength: environments.urlMaxBodyLength
     }),
-    CacheModule,
-    MetricCollectorModule
+    CacheModule
   ],
   controllers: [UriProcessorController],
   providers: [UriProcService]
