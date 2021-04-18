@@ -86,4 +86,12 @@ export class CacheRedisService {
         return crypto.createHash('md5').update(data).digest('hex').toString();
     }
 
+    /**
+     * 
+     * @param key clear kvs.
+     */
+    public flushAll() {
+        return this.redisClient.flushall();
+    }
+
 }
