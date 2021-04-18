@@ -22,6 +22,7 @@ export class AvatarService {
         return new Promise<{type: string, body: any}>(async (res, rej) => {
             const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache) {
+                this.logger.error(JSON.stringify(cache));
                 this.metricCollector.writeMetric('avatar-service', {
                     type: cache.type,
                     size: cache.data.length
