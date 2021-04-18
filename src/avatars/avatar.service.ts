@@ -21,21 +21,21 @@ export class AvatarService {
     async getAvatarOfUser(nick: string): Promise<{type: string, body: any, cached: boolean}> {
         return new Promise<{type: string, body: any, cached: boolean}>(async (res, rej) => {
 
-            const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
-            if(cache && cache.data) {
-                this.metricCollector.writeMetric('avatar-service', {
-                    type: cache.type,
-                    size: cache.data.length ? cache.data.length : 0
-                }, {
-                    status: 'cached'
-                });
-                res({
-                    type: cache.type,
-                    body: cache.data,
-                    cached: true
-                });
-                return;
-            }
+            // const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
+            // if(cache && cache.data) {
+            //     this.metricCollector.writeMetric('avatar-service', {
+            //         type: cache.type,
+            //         size: cache.data.length ? cache.data.length : 0
+            //     }, {
+            //         status: 'cached'
+            //     });
+            //     res({
+            //         type: cache.type,
+            //         body: cache.data,
+            //         cached: true
+            //     });
+            //     return;
+            // }
 
             // este usuario tiene un avatar?:
             const savedUser = await this.kvsSrv.get('avatar-' + nick, true);
@@ -51,13 +51,13 @@ export class AvatarService {
                     }, {
                         status: 'fetched'
                     });
-                    this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
-                        type: savedUser.type,
-                        data: image
-                    });
+                    // this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
+                    //     type: savedUser.type,
+                    //     data: image
+                    // });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
-                        body: image,
+                        body: d.data,
                         cached: false
                     });
                 }, e => {
