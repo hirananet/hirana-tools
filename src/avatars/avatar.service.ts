@@ -22,7 +22,7 @@ export class AvatarService {
         return new Promise<{type: string, body: any}>(async (res, rej) => {
             const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache) {
-                this.logger.error(JSON.stringify(cache));
+                this.logger.error(JSON.stringify(Object.keys(cache)));
                 this.metricCollector.writeMetric('avatar-service', {
                     type: cache.type,
                     size: cache.data.length
@@ -80,7 +80,7 @@ export class AvatarService {
                     data: d.data
                 });
                 this.metricCollector.writeMetric('avatar-service', {
-                    size: d.data.length
+                    size: d.data?.length ? d.data?.length : 0
                 }, {
                     status: 'jdenticon-generated'
                 });
