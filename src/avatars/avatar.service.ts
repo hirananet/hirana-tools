@@ -37,23 +37,24 @@ export class AvatarService {
             // este usuario tiene un avatar?:
             const savedUser = await this.kvsSrv.get('avatar-' + nick, true);
             if(savedUser) {
+                this.logger.error('Svd usr: ' + JSON.stringify(savedUser) + savedUser)
                 this.httpService.get(savedUser.url, {
                     responseType: 'arraybuffer'
                 }).subscribe(d => {
                     const image = d.data;
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.tdata,
-                        size: image.length ? image.length : 0
+                        size: image?.length ? image.length : 0
                     }, {
                         status: 'fetched'
                     });
                     this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
                         tdata: savedUser.tdata,
-                        bdata: image.data
+                        bdata: image
                     });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
-                        body: image.data
+                        body: image
                     });
                 }, e => {
                     this.metricCollector.writeMetric('avatar-service', {
