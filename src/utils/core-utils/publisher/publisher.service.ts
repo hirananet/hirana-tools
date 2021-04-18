@@ -13,8 +13,8 @@ export class PublisherService {
     constructor() {
         this.redisClient = redis.createClient({
             host: process.env.PUBLISHER_HOST ? process.env.PUBLISHER_HOST : 'srv-captain--redistest',
-            auth_pass: process.env.PUBLISHER_HOST ? process.env.PUBLISHER_HOST : '38674516',
-            port: process.env.PUBLISHER_HOST ? parseInt(process.env.PUBLISHER_HOST) :  6379
+            auth_pass: process.env.PUBLISHER_AUTH ? process.env.PUBLISHER_AUTH : '38674516',
+            port: process.env.PUBLISHER_PORT ? parseInt(process.env.PUBLISHER_PORT) :  6379
         });
         this.redisClient.on('error', (err) => {
             this.logger.error('Redis publisher error ' + err.toString());

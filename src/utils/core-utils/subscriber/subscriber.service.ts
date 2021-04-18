@@ -15,8 +15,8 @@ export class SubscriberService {
     constructor() {
         this.redisClient = redis.createClient({
             host: process.env.SUBSCRIBER_HOST ? process.env.SUBSCRIBER_HOST : 'srv-captain--redistest',
-            auth_pass: process.env.SUBSCRIBER_HOST ? process.env.SUBSCRIBER_HOST : '38674516',
-            port: process.env.SUBSCRIBER_HOST ? parseInt(process.env.SUBSCRIBER_HOST) :  6379
+            auth_pass: process.env.SUBSCRIBER_AUTH ? process.env.SUBSCRIBER_AUTH : '38674516',
+            port: process.env.SUBSCRIBER_PORT ? parseInt(process.env.SUBSCRIBER_PORT) :  6379
         });
         this.redisClient.on('error', (err) => {
             this.logger.error('Redis subscriber error ' + err.toString());

@@ -13,8 +13,8 @@ export class KVSService {
     constructor() {
         this.redisClient = redis.createClient({
             host: process.env.KVS_HOST ? process.env.KVS_HOST : 'srv-captain--redistest',
-            auth_pass: process.env.KVS_HOST ? process.env.KVS_HOST : '38674516',
-            port: process.env.KVS_HOST ? parseInt(process.env.KVS_HOST) :  6379
+            auth_pass: process.env.KVS_AUTH ? process.env.KVS_AUTH : '38674516',
+            port: process.env.KVS_PORT ? parseInt(process.env.KVS_PORT) :  6379
         });
         this.redisClient.on('error', (err) => {
             this.logger.error('Redis kvs error ' + err.toString());
