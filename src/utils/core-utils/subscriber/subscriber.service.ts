@@ -41,13 +41,13 @@ export class SubscriberService {
      * @param topic topic to suscribe
      * @returns Observable to handle messages.
      */
-    public observable(topic: string): Subject<string> {
+    public attach(topic: string): Subject<string | object> {
         this.redisClient.subscribe(topic);
         this.handlers[topic] = new Subject<string>();
         return this.handlers[topic];
     }
 
-    public getSubscription(topic: string): Subject<string> {
+    public getSubscription(topic: string): Subject<string | object> {
         return this.handlers[topic];
     }
 

@@ -27,5 +27,6 @@ export const environments = {
     imgurHttpTimeout: 3000,
 
     avatarTTL: 1800, // 30 minutos
-    jdenticonTTL: 7200 // dos horas
+    jdenticonTTL: 7200, // dos horas
+    urlTTL: 3600 // 1 hora
 };

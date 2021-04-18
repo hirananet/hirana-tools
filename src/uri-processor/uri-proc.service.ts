@@ -1,86 +1,109 @@
-import { environments } from './../environment';
+import { PublisherService } from './../utils/core-utils/publisher/publisher.service';
+import { SubscriberService } from './../utils/core-utils/subscriber/subscriber.service';
+import { environments } from 'src/environment';
+import { CacheRedisService } from './../utils/core-utils/cache-redis/cache-redis.service';
 import { HttpService, Injectable, Logger } from '@nestjs/common';
-import { CacheService, DataStore } from 'src/cache/cache.service';
+import { first } from 'rxjs/operators';
 
 const urlParser = require('url');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
-const Rx = require('rxjs');
 
 @Injectable()
 export class UriProcService {
 
     private readonly logger = new Logger(UriProcService.name);
 
-    constructor(private cacheService: CacheService,
-                private httpService: HttpService) {
-        this.cacheService.initMemoryCache(environments.urlCacheKey)
+    constructor(private httpService: HttpService,
+                private cacheSrv: CacheRedisService,
+                private subSrv: SubscriberService,
+                private pubSrv: PublisherService) {
+        this.subSrv.attach('url-processed').subscribe((d) => {
+
+        })
     }
 
     public getDetailOf(url: string): Promise<{title: string, favicon: string, status: string}> {
         this.logger.log('Request URL data ' + urlParser.parse(url).hostname);
-        return new Promise<{title: string, favicon: string, status: string}>((res, rej) => {
-            const dataCached = this.getCache(url);
-            if(dataCached?.status === 'fetching') {
-                dataCached.emitter.subscribe(r => {
-                    res(r);
-                });
-            } else if(dataCached?.status === 'ok') {
-                res(dataCached);
+        return new Promise<{title: string, favicon: string, status: string}>(async (res, rej) => {
+            const urlChecksum = this.cacheSrv.checksum(url);
+            const cache = await this.cacheSrv.getFromCache('url-'+urlChecksum, true);
+
+            if(cache) {
+                if(cache.ready) {
+                    res(cache);
+                } else {
+                    this.logger.debug('Waiting previous transaction: ' + urlChecksum + '' + url);
+                    // wait for ready cache.
+                    this.subSrv.getSubscription('url-processed').pipe(first()).subscribe(async (d: any) => {
+                        if(d.hash == urlChecksum) {
+                            if(d.resolved) {
+                                this.logger.debug('Resolved transaction: ' + urlChecksum + '' + url);
+                                res(await this.cacheSrv.getFromCache('url-'+urlChecksum, true));
+                            } else {
+                                this.logger.error('Failed async transaction: ' + urlChecksum + '' + url);
+                                rej('fail async-fetch.');
+                            }
+                        }
+                    });
+                }
             } else {
-                let nData = {
+                const data = {
                     title: '',
                     favicon: '',
                     status: 'fetching',
-                    emitter: Rx.Observable.create((observer) => {
-                        this.httpService.get(url).subscribe(response => {
-                            const dom = new JSDOM(response.data);
-                            nData.title = dom.window.document.title;
-                            const tq = dom.window.document.head.querySelector('link[rel=icon]');
-                            let favicon =  tq ? tq.href : undefined;
-                            if(!favicon) {
-                                const tq2 = dom.window.document.head.querySelector('link[rel="shortcut icon"]');
-                                favicon = tq2 ? tq2.href : undefined;
-                            }
-                            const urlParsed = urlParser.parse(url);
-                            const urlBase = urlParsed.protocol + '//' + urlParsed.host;
-                            if (favicon && favicon.indexOf('http') != 0) {
-                                favicon = favicon[0] == '/' ? urlBase + favicon : urlBase + '/' + favicon;
-                            }
-                            nData.favicon = favicon;
-                            nData.status = 'ok';
-                            delete nData.emitter;
-                            this.setCache(url, nData);
-                            observer.next(nData);
-                            observer.complete();
-                        }, err => {
-                            this.logger.error('Error fetching: ' + url, err);
-                            nData.status = 'failed';
-                            delete nData.emitter;
-                            this.setCache(url, nData);
-                            observer.error();
-                        });
-                    })
+                    ready: false
                 };
-                nData.emitter.subscribe(d => {
-                    res(d);
+                this.logger.debug('Fetching: ' + urlChecksum + '' + url);
+                // send to cache
+                const cached = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
+                // get data
+                this.httpService.get(url).subscribe(response => {
+                    this.logger.debug('Fetched: ' + urlChecksum + '' + url);
+                    const dom = new JSDOM(response.data);
+                    data.title = dom.window.document.title;
+                    const tq = dom.window.document.head.querySelector('link[rel=icon]');
+                    let favicon =  tq ? tq.href : undefined;
+                    if(!favicon) {
+                        const tq2 = dom.window.document.head.querySelector('link[rel="shortcut icon"]');
+                        favicon = tq2 ? tq2.href : undefined;
+                    }
+                    const urlParsed = urlParser.parse(url);
+                    const urlBase = urlParsed.protocol + '//' + urlParsed.host;
+                    if (favicon && favicon.indexOf('http') != 0) {
+                        favicon = favicon[0] == '/' ? urlBase + favicon : urlBase + '/' + favicon;
+                    }
+                    data.favicon = favicon;
+                    data.ready = true;
+                    if(cached) {
+                        const updated = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
+                        if(updated) {
+                            this.pubSrv.publish('url-processed', {
+                                hash: urlChecksum,
+                                resolved: true
+                            });
+                        } else {
+                            this.logger.error('Fail update: ' + urlChecksum + '' + url);
+                            this.pubSrv.publish('url-processed', {
+                                hash: urlChecksum,
+                                resolved: false
+                            });
+                        }
+                    }
                 }, err => {
-                    rej(err);
+                    this.logger.error('Not fetched: ' + urlChecksum + '' + url);
+                    this.logger.error(err);
+                    if(cached) {
+                        this.cacheSrv.invalidate('url-'+urlChecksum);
+                        this.pubSrv.publish('url-processed', {
+                            hash: urlChecksum,
+                            resolved: false
+                        });
+                    }
+                    rej('fail fetch.');
                 });
-                this.setCache(url, nData);
             }
         });
-    }
-
-    private getCache(key: string) {
-        return this.cacheService.getCache(environments.urlCacheKey, key);
-    }
-
-    private setCache(key: string, data: any) {
-        this.cacheService.setCache(environments.urlCacheKey, new DataStore(
-            key,
-            data
-        ))
     }
 
 }

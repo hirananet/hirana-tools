@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as redis from 'redis';
 import { Subject } from 'rxjs';
 
+const crypto = require('crypto');
+
 @Injectable()
 export class CacheRedisService {
 
@@ -74,6 +76,14 @@ export class CacheRedisService {
      */
     public invalidate(key: string) {
         return this.redisClient.del(key);
+    }
+
+    /**
+     * create hash md5 of data to generate key based on values:
+     * @param data data to checksum
+     */
+    public checksum(data: string) {
+        return crypto.createHash('md5').update(data).digest('hex').toString();
     }
 
 }
