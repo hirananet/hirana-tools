@@ -24,10 +24,10 @@ export class AvatarService {
             const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache && cache.data) {
                 let body = cache.data;
-                if(typeof cache.data === 'object') {
-                    console.log('split size: ', cache.data.buffer.split(','));
-                    body = Uint8Array.from(cache.data.buffer.split(','));
-                }
+                console.log('split size: ', cache.data.buffer.split(',').length, );
+                // if(typeof cache.data === 'object') {
+                //     body = Uint8Array.from(cache.data.buffer.split(','));
+                // }
                 this.metricCollector.writeMetric('avatar-service', {
                     type: cache.type,
                     size: cache.data.length ? cache.data.length : 0
