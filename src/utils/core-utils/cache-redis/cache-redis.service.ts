@@ -1,0 +1,71 @@
+import { Injectable, Logger } from '@nestjs/common';
+import * as redis from 'redis';
+import { Subject } from 'rxjs';
+
+@Injectable()
+export class CacheRedisService {
+
+    private readonly logger = new Logger(CacheRedisService.name);
+
+    private readonly redisClient: redis.RedisClient;
+    private onError: Subject<any> = new Subject<any>();
+
+    constructor() {
+        this.redisClient = redis.createClient({
+            host: process.env.CACHE_HOST ? process.env.CACHE_HOST : 'srv-captain--redistest',
+            auth_pass: process.env.CACHE_AUTH ? process.env.CACHE_AUTH : '38674516',
+            port: process.env.CACHE_PORT ? parseInt(process.env.CACHE_PORT) :  6379
+        });
+        this.redisClient.on('error', (err) => {
+            this.logger.error('Redis cache error ' + err.toString());
+            this.onError.next(err);
+        });
+    }
+    
+    public getOnError(): Subject<any> {
+        return this.onError;
+    }
+
+    /**
+     * 
+     * @param key the key to store in cache and recover
+     * @param ttl the time to live seconds (time in cache before auto-remove)
+     * @param data the data to save in cache
+     */
+    public saveInCache(key: string, ttl: number, data: string | object): boolean {
+        if(typeof data == 'object') {
+            data = JSON.stringify(data);
+        }
+        return this.redisClient.setex(key, ttl, data);
+    }
+
+    /**
+     * @param key the key of value saved in cache
+     * @param asObject parse json or return string? if json is invalid, return the string
+     * @returns false, Object, String
+     */
+    public getFromCache(key: string, asObject?: boolean): Promise<any> {
+        return new Promise<any>((res, rej) => {
+            this.redisClient.get(key, (err, data) => {
+                if(err) {
+                    rej(err);
+                } else {
+                    if(data) {
+                        if(asObject) {
+                            try {
+                                const _data = JSON.parse(data);
+                                if(_data) {
+                                    data = _data;
+                                }
+                            } catch(e) {}
+                        }
+                        res(data);
+                    } else {
+                        res(false);
+                    }
+                }
+            });
+        });
+    }
+
+}
