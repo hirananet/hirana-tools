@@ -4,8 +4,6 @@ import { Module } from '@nestjs/common';
 import { AvatarsModule } from './avatars/avatars.module';
 import { CustomTitlesModule } from './custom-titles/custom-titles.module';
 import { UriProcessorModule } from './uri-processor/uri-processor.module';
-import { CacheModule } from './cache/cache.module';
-import { StorageModule } from './storage/storage.module';
 import { ApmModule } from 'elastic-apm-nest';
 
 @Module({
@@ -15,8 +13,6 @@ import { ApmModule } from 'elastic-apm-nest';
     CustomTitlesModule,
     HiranaBotModule,
     ImgurApiModule,
-    CacheModule,
-    StorageModule,
     ApmModule.forRootAsync(),
   ],
   controllers: [
