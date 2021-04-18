@@ -18,8 +18,8 @@ export class AvatarService {
         private httpService: HttpService
     ) { }
 
-    async getAvatarOfUser(nick: string): Promise<{type, body}> {
-        return new Promise<{type: string, body: any}>(async (res, rej) => {
+    async getAvatarOfUser(nick: string): Promise<{type: string, body: any, cached: boolean}> {
+        return new Promise<{type: string, body: any, cached: boolean}>(async (res, rej) => {
 
             const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache && cache.data) {
@@ -31,7 +31,8 @@ export class AvatarService {
                 });
                 res({
                     type: cache.type,
-                    body: cache.data
+                    body: cache.data,
+                    cached: true
                 });
                 return;
             }
@@ -55,7 +56,8 @@ export class AvatarService {
                     });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
-                        body: image
+                        body: image,
+                        cached: false
                     });
                 }, e => {
                     this.metricCollector.writeMetric('avatar-service', {
@@ -86,7 +88,8 @@ export class AvatarService {
                 });
                 res({
                     type: 'image/svg+xml',
-                    body: d.data
+                    body: d.data,
+                    cached: false
                 });
             }, e => {
                 this.metricCollector.writeMetric('avatar-service', {
@@ -104,7 +107,8 @@ export class AvatarService {
     private getDefault() {
         return {
             type: 'image/png',
-            body: fs.readFileSync(environments.resourcesLocation + '/default.png')
+            body: fs.readFileSync(environments.resourcesLocation + '/default.png'),
+            cached: false
         }
     }
 

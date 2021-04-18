@@ -12,6 +12,9 @@ export class AvatarsController {
     public getAvatar(@Req() request: Request, @Res() response: Response, @Query('usr') user: string) {
         this.avatarSrv.getAvatarOfUser(user).then(r => {
             response.type(r.type);
+            if(r.cached) {
+                response.setHeader('x-cached', 'transaction')
+            }
             response.send(r.body);
         }).catch(e => {
             response.status(500).send('Internal exception: ' + e);
