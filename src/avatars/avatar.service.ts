@@ -21,21 +21,25 @@ export class AvatarService {
     async getAvatarOfUser(nick: string): Promise<{type: string, body: any, cached: boolean}> {
         return new Promise<{type: string, body: any, cached: boolean}>(async (res, rej) => {
 
-            // const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
-            // if(cache && cache.data) {
-            //     this.metricCollector.writeMetric('avatar-service', {
-            //         type: cache.type,
-            //         size: cache.data.length ? cache.data.length : 0
-            //     }, {
-            //         status: 'cached'
-            //     });
-            //     res({
-            //         type: cache.type,
-            //         body: cache.data,
-            //         cached: true
-            //     });
-            //     return;
-            // }
+            const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
+            if(cache && cache.data) {
+                let body = cache.data;
+                if(typeof cache.data === 'object') {
+                    body = Uint8Array.from(cache.data.buffer.split(','));
+                }
+                this.metricCollector.writeMetric('avatar-service', {
+                    type: cache.type,
+                    size: cache.data.length ? cache.data.length : 0
+                }, {
+                    status: 'cached'
+                });
+                res({
+                    type: cache.type,
+                    body,
+                    cached: true
+                });
+                return;
+            }
 
             // este usuario tiene un avatar?:
             const savedUser = await this.kvsSrv.get('avatar-' + nick, true);
@@ -44,7 +48,7 @@ export class AvatarService {
                     responseType: 'arraybuffer'
                 }).subscribe(d => {
                     const image = d.data.toString();
-                    console.log('url', savedUser.url, 'data', typeof image, typeof d.data, image.legnth);
+                    console.log('url', savedUser.url, 'data', typeof image, typeof d.data, image.length);
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.type,
                         size: image?.length ? image.length : 0
