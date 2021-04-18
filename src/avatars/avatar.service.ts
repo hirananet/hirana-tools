@@ -41,10 +41,10 @@ export class AvatarService {
             const savedUser = await this.kvsSrv.get('avatar-' + nick, true);
             if(savedUser) {
                 this.httpService.get(savedUser.url, {
-                    responseType: 'text'
+                    responseType: 'arraybuffer'
                 }).subscribe(d => {
-                    console.log('url', savedUser.url, 'data', Object.keys(d.data));
-                    const image = d.data;
+                    console.log('url', savedUser.url, 'data');
+                    const image = String.fromCharCode.apply(null, new Uint16Array(d.data));
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.type,
                         size: image?.length ? image.length : 0
