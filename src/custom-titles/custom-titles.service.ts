@@ -1,6 +1,5 @@
 import { KVSService } from './../utils/core-utils/kvs/kvs.service';
 import { Injectable } from '@nestjs/common';
-import { environments } from 'src/environment';
 
 @Injectable()
 export class CustomTitlesService {
