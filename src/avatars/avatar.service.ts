@@ -43,18 +43,18 @@ export class AvatarService {
                 this.httpService.get(savedUser.url, {
                     responseType: 'arraybuffer'
                 }).subscribe(d => {
-                    console.log('url', savedUser.url, 'data');
-                    const image = Buffer.from(d.data, 'binary').toString();
+                    const image = d.data.toString();
+                    console.log('url', savedUser.url, 'data', image.legnth);
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.type,
                         size: image?.length ? image.length : 0
                     }, {
                         status: 'fetched'
                     });
-                    // this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
-                    //     type: savedUser.type,
-                    //     data: image
-                    // });
+                    this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
+                        type: savedUser.type,
+                        data: {buffer: image}
+                    });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
                         body: d.data,
