@@ -6,6 +6,7 @@ import { CustomTitlesModule } from './custom-titles/custom-titles.module';
 import { UriProcessorModule } from './uri-processor/uri-processor.module';
 import { CacheModule } from './cache/cache.module';
 import { StorageModule } from './storage/storage.module';
+import { ApmModule } from 'elastic-apm-nest';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { StorageModule } from './storage/storage.module';
     HiranaBotModule,
     ImgurApiModule,
     CacheModule,
-    StorageModule
+    StorageModule,
+    ApmModule.forRootAsync(),
   ],
   controllers: [
     
