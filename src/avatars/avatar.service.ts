@@ -20,7 +20,7 @@ export class AvatarService {
 
     async getAvatarOfUser(nick: string): Promise<{type, body}> {
         return new Promise<{type: string, body: any}>(async (res, rej) => {
-            const cache = undefined;// await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
+            const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache) {
                 this.metricCollector.writeMetric('avatar-service', {
                     type: cache.type,
@@ -28,16 +28,16 @@ export class AvatarService {
                 }, {
                     status: 'cached'
                 });
-                return {
+                res({
                     type: cache.type,
                     body: cache.data
-                }
+                });
+                return;
             }
 
             // este usuario tiene un avatar?:
             const savedUser = await this.kvsSrv.get('avatar-' + nick, true);
             if(savedUser) {
-                this.logger.error('Svd usr: ' + JSON.stringify(savedUser) + savedUser)
                 this.httpService.get(savedUser.url, {
                     responseType: 'arraybuffer'
                 }).subscribe(d => {
@@ -66,6 +66,7 @@ export class AvatarService {
                     this.logger.error('Error getting avatar of: '+nick+' in url: ' + savedUser.url, e);
                     res(this.getDefault());
                 });
+                return;
             }
 
             // JDENTICON
