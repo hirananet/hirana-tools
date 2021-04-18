@@ -21,11 +21,10 @@ export class AvatarService {
     async getAvatarOfUser(nick: string): Promise<{type, body}> {
         return new Promise<{type: string, body: any}>(async (res, rej) => {
             const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
-            if(cache) {
-                this.logger.error(JSON.stringify(Object.keys(cache)));
+            if(cache && cache.data) {
                 this.metricCollector.writeMetric('avatar-service', {
                     type: cache.type,
-                    size: cache.data.length
+                    size: cache.data.length ? cache.data.length : 0
                 }, {
                     status: 'cached'
                 });
