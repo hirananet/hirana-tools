@@ -116,6 +116,7 @@ export class CoreBotService {
                             url,
                             type 
                         })) {
+                            console.log('invalidate cache ' + nick);
                             this.cacheSrv.invalidate('cache-avatar-'+nick);
                             this.client.say(nick, 'Avatar updated.');
                         } else {
