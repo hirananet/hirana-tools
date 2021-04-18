@@ -24,7 +24,7 @@ export class AvatarService {
             const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache && cache.data) {
                 let body = cache.data;
-                console.log('split size: ', cache.data.buffer.split(',').length, );
+                console.log('split size: ', cache.data.buffer.length, );
                 // if(typeof cache.data === 'object') {
                 //     body = Uint8Array.from(cache.data.buffer.split(','));
                 // }
