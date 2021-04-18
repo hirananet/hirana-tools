@@ -23,14 +23,14 @@ export class AvatarService {
             const cache = undefined;// await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache) {
                 this.metricCollector.writeMetric('avatar-service', {
-                    type: cache.tdata,
-                    size: cache.bdata.length
+                    type: cache.type,
+                    size: cache.data.length
                 }, {
                     status: 'cached'
                 });
                 return {
-                    type: cache.tdata,
-                    body: cache.bdata
+                    type: cache.type,
+                    body: cache.data
                 }
             }
 
@@ -43,14 +43,14 @@ export class AvatarService {
                 }).subscribe(d => {
                     const image = d.data;
                     this.metricCollector.writeMetric('avatar-service', {
-                        type: savedUser.tdata,
+                        type: savedUser.type,
                         size: image?.length ? image.length : 0
                     }, {
                         status: 'fetched'
                     });
                     this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
-                        tdata: savedUser.tdata,
-                        bdata: image
+                        type: savedUser.type,
+                        data: image
                     });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
@@ -58,7 +58,7 @@ export class AvatarService {
                     });
                 }, e => {
                     this.metricCollector.writeMetric('avatar-service', {
-                        type: savedUser.tdata,
+                        type: savedUser.type,
                         host: (new URL(savedUser.url)).hostname
                     }, {
                         status: 'fetched-error'
@@ -74,8 +74,8 @@ export class AvatarService {
                 responseType: 'text'
             }).subscribe(d => {
                 this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.jdenticonTTL, {
-                    tdata: 'image/svg+xml',
-                    bdata: d.data
+                    type: 'image/svg+xml',
+                    data: d.data
                 });
                 this.metricCollector.writeMetric('avatar-service', {
                     size: d.data.length
