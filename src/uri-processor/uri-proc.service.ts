@@ -97,6 +97,7 @@ export class UriProcService {
                             });
                         }
                     }
+                    res(data);
                 }, err => {
                     this.metricCache('fetch-error', urlChecksum, url);
                     this.logger.error('Not fetched: ' + urlChecksum + '' + url);
