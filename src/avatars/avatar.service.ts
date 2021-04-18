@@ -43,17 +43,17 @@ export class AvatarService {
                     const image = d.data;
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.tdata,
-                        size: image.length
+                        size: image.length ? image.length : 0
                     }, {
                         status: 'fetched'
                     });
                     this.cacheSrv.saveInCache('cache-avatar-'+nick, environments.avatarTTL, {
                         tdata: savedUser.tdata,
-                        bdata: image
+                        bdata: image.data
                     });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
-                        body: image
+                        body: image.data
                     });
                 }, e => {
                     this.metricCollector.writeMetric('avatar-service', {
