@@ -25,7 +25,7 @@ export class AvatarService {
             if(cache && cache.data) {
                 let body = cache.data;
                 if(typeof cache.data === 'object') {
-                    body = Uint8Array.from(Buffer.from(cache.data.buffer, 'base64'));
+                    body = Buffer.from(cache.data.buffer, 'base64');
                 }
                 this.metricCollector.writeMetric('avatar-service', {
                     type: cache.type,
