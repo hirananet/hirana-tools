@@ -25,6 +25,11 @@ export class CoreBotService {
         this.client.on('registered', () => {
             this.client.say('NickServ', 'identify ' + environments.bot.password);
         });
+        this.client.on('nick', (oldnick, newnick, channels, message) => {
+            if(oldnick == environments.bot.botName) {
+                environments.bot.botName = newnick;
+            }
+        });
         this.client.on('message', (nick, to, text, message) => {
             if (to === environments.bot.botName) {
                 // private message.
@@ -37,7 +42,7 @@ export class CoreBotService {
                     this.client.say(nick, '/hc userNick g RangoNombre #aaa | dar rango global a un usuario');
                     this.client.say(nick, '/hc userNick -g | eliminar rango global a un usuario');
                     this.client.say(nick, '/hc owners')
-                    this.client.say(nick, '/hc avatar http:/imgur.com/a15q3.png | only png accepted')
+                    this.client.say(nick, '/hc avatar <link.png> | only png accepted')
                 } else if (dataPart[2] == 'r') {
                     if(this.channelUsersPrivileges[dataPart[0]] &&
                        (this.channelUsersPrivileges[dataPart[0]][nick] === '&' || 
