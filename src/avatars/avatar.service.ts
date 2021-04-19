@@ -5,6 +5,7 @@ import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { MetricCollectorService } from 'src/utils/core-utils/metric-collector/metric-collector.service';
 
 const fs = require('fs');
+const atob = require('atob');
 
 @Injectable()
 export class AvatarService {
@@ -62,7 +63,7 @@ export class AvatarService {
                     });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
-                        body: Uint8Array.from(atob(image), c => c.charCodeAt(0)),
+                        body: Buffer.from(image, 'base64'),
                         cached: false
                     });
                 }, e => {
