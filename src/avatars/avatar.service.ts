@@ -48,7 +48,7 @@ export class AvatarService {
                 this.httpService.get(savedUser.url, {
                     responseType: 'arraybuffer'
                 }).subscribe(d => {
-                    const image = d.data.toString();
+                    const image = d.data.toString('base64');
                     console.log('url', savedUser.url, 'data', typeof image, typeof d.data, image.length);
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.type,
@@ -62,7 +62,7 @@ export class AvatarService {
                     });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
-                        body: d.data,
+                        body: Uint8Array.from(atob(image), c => c.charCodeAt(0)),
                         cached: false
                     });
                 }, e => {
