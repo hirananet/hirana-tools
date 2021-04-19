@@ -28,5 +28,6 @@ export const environments = {
 
     avatarTTL: 1800, // 30 minutos
     jdenticonTTL: 7200, // dos horas
-    urlTTL: 3600 // 1 hora
+    urlTTL: 3600, // 1 hora
+    userAgent: 'Hirana-Spider'
 };
