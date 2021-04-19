@@ -5,7 +5,6 @@ import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { MetricCollectorService } from 'src/utils/core-utils/metric-collector/metric-collector.service';
 
 const fs = require('fs');
-const atob = require('atob');
 
 @Injectable()
 export class AvatarService {
@@ -25,10 +24,9 @@ export class AvatarService {
             const cache = await this.cacheSrv.getFromCache('cache-avatar-'+nick, true);
             if(cache && cache.data) {
                 let body = cache.data;
-                console.log('split size: ', cache.data.buffer.length, );
-                // if(typeof cache.data === 'object') {
-                //     body = Uint8Array.from(cache.data.buffer.split(','));
-                // }
+                if(typeof cache.data === 'object') {
+                    body = Uint8Array.from(Buffer.from(cache.data.buffer, 'base64'));
+                }
                 this.metricCollector.writeMetric('avatar-service', {
                     type: cache.type,
                     size: cache.data.length ? cache.data.length : 0
@@ -50,7 +48,6 @@ export class AvatarService {
                     responseType: 'arraybuffer'
                 }).subscribe(d => {
                     const image = d.data.toString('base64');
-                    console.log('url', savedUser.url, 'data', typeof image, typeof d.data, image.length);
                     this.metricCollector.writeMetric('avatar-service', {
                         type: savedUser.type,
                         size: image?.length ? image.length : 0
@@ -63,7 +60,7 @@ export class AvatarService {
                     });
                     res({
                         type: savedUser.type ? savedUser.type : 'image/png',
-                        body: Buffer.from(image, 'base64'),
+                        body: d.data,
                         cached: false
                     });
                 }, e => {
