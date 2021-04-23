@@ -9,7 +9,7 @@ export class CoreBotService {
 
     private client: NodeIRC.Client;
 
-    private channelUsersPrivileges = { };
+    private channelUsersPrivileges = {};
 
     constructor(private cacheSrv: CacheRedisService, private kvsSrv: KVSService) {
         if(environments.bot.enabled) {
@@ -31,7 +31,7 @@ export class CoreBotService {
             }
         });
         this.client.on('names', function(channel, nicks) {
-            this.channelUsersPrivileges[channel] = nicks;
+            this.channelUsersPrivileges[channel.splice(1)] = nicks;
         })        
         this.client.on('pm', (nick, to, text, message) => {
             // private message.
