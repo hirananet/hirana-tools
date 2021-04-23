@@ -33,7 +33,7 @@ export class CoreBotService {
             }
         });
         this.client.on('names', (channel, nicks) => {
-            this.channelUsersPrivileges[channel.slice(1)] = nicks;
+            this.channelUsersPrivileges[channel] = nicks;
         });        
         this.client.on('pm', (nick, text) => {
             // private message.
