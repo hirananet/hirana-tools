@@ -55,7 +55,7 @@ export class CoreBotService {
                     if(dataPart[0][0] == '#') {
                         channel = channel.slice(1);
                     }
-                    if(this.kvsSrv.put('customtitle-'+channel+'-'+dataPart[1], {
+                    if(this.kvsSrv.put('customtitle-'+channel+'-'+dataPart[1].toLocaleLowerCase(), {
                         color: dataPart[4] ? dataPart[4] : '#b9b9b9',
                         rango: dataPart[3]
                     })) {
@@ -79,7 +79,7 @@ export class CoreBotService {
                     if(dataPart[0][0] == '#') {
                         channel = channel.slice(1);
                     }
-                    this.kvsSrv.del('customtitle-'+channel+'-'+dataPart[1]);
+                    this.kvsSrv.del('customtitle-'+channel+'-'+dataPart[1].toLocaleLowerCase());
                     this.client.say(nick, 'ok');
                 } else {
                     if(!this.channelUsersPrivileges[dataPart[0]]) {
@@ -91,7 +91,7 @@ export class CoreBotService {
                 }
             } else if (dataPart[1] == '-g') {
                 if(environments.bot.owners.find(boss => boss.toLocaleLowerCase() === nick.toLocaleLowerCase())) {
-                    const user = dataPart[0];
+                    const user = dataPart[0].toLocaleLowerCase();
                     this.kvsSrv.del('globaltitle-'+user);
                     this.client.say(nick, 'ok');
                 } else {
@@ -99,7 +99,7 @@ export class CoreBotService {
                 }
             } else if (dataPart[1] == 'g') {
                 if(environments.bot.owners.find(boss => boss.toLocaleLowerCase() === nick.toLocaleLowerCase())) {
-                    const user = dataPart[0];
+                    const user = dataPart[0].toLocaleLowerCase();
                     if(this.kvsSrv.put('globaltitle-'+user,{
                         color: dataPart[3] ? dataPart[3] : '#b9b9b9',
                         rango: dataPart[2]
