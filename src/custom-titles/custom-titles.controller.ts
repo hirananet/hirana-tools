@@ -10,19 +10,24 @@ export class CustomTitlesController {
 
     @Get('')
     public async getCustomRange(@Query('usr') user: string, @Query('chn') channel: string) {
+        const results = [];
         let rData = await this.cusTtlSrv.getChannelCustom(channel, user);
-        if(!rData) {
-            rData = await this.cusTtlSrv.getGlobalCustom(user);
+        if(rData) {
+            results.push(rData);
         }
-        if(!rData) {
+        rData = await this.cusTtlSrv.getGlobalCustom(user);
+        if(rData) {
+            results.push(rData);
+        } 
+        
+        if(results.length === 0) {
             return {
                 exists: false
             }
         } else {
             return {
                 exists: true,
-                color: rData.color,
-                rango: rData.rango
+                results
             }
         }
     }
