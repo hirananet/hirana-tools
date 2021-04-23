@@ -35,7 +35,7 @@ export class CoreBotService {
         this.client.on('names', (channel, nicks) => {
             this.channelUsersPrivileges[channel.slice(1)] = nicks;
         });        
-        this.client.on('pm', (nick, to, text, message) => {
+        this.client.on('pm', (nick, text) => {
             // private message.
             const dataPart = text.trim().split(' ');
             // #channel polsaker r probando #aaa
