@@ -32,13 +32,9 @@ export class CoreBotService {
                 environments.bot.botName = newnick;
             }
         });
-        this.client.on('names', function(channel, nicks) {
-            if(!this.channelUsersPrivileges) {
-                this.logger.error('no channel privileges')
-            } else {
-                this.channelUsersPrivileges[channel.slice(1)] = nicks;
-            }
-        })        
+        this.client.on('names', (channel, nicks) => {
+            this.channelUsersPrivileges[channel.slice(1)] = nicks;
+        });        
         this.client.on('pm', (nick, to, text, message) => {
             // private message.
             const dataPart = text.trim().split(' ');
