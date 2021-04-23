@@ -90,7 +90,7 @@ export class CoreBotService {
                     }
                 }
             } else if (dataPart[1] == '-g') {
-                if(environments.bot.owners.find(boss => boss === nick)) {
+                if(environments.bot.owners.find(boss => boss.toLocaleLowerCase() === nick.toLocaleLowerCase())) {
                     const user = dataPart[0];
                     this.kvsSrv.del('globaltitle-'+user);
                     this.client.say(nick, 'ok');
@@ -98,7 +98,7 @@ export class CoreBotService {
                     this.client.say(nick, 'No te encuentras en la lista de nicks habilitados. ');
                 }
             } else if (dataPart[1] == 'g') {
-                if(environments.bot.owners.find(boss => boss === nick)) {
+                if(environments.bot.owners.find(boss => boss.toLocaleLowerCase() === nick.toLocaleLowerCase())) {
                     const user = dataPart[0];
                     if(this.kvsSrv.put('globaltitle-'+user,{
                         color: dataPart[3] ? dataPart[3] : '#b9b9b9',
