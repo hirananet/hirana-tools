@@ -1,11 +1,13 @@
 import { KVSService } from './../utils/core-utils/kvs/kvs.service';
 import { CacheRedisService } from './../utils/core-utils/cache-redis/cache-redis.service';
 import { environments } from 'src/environment';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as NodeIRC from 'irc';
 
 @Injectable()
 export class CoreBotService {
+
+    private readonly logger = new Logger(CoreBotService.name);
 
     private client: NodeIRC.Client;
 
@@ -31,7 +33,11 @@ export class CoreBotService {
             }
         });
         this.client.on('names', function(channel, nicks) {
-            this.channelUsersPrivileges[channel.splice(1)] = nicks;
+            if(!this.channelUsersPrivileges) {
+                this.logger.error('no channel privileges')
+            } else {
+                this.channelUsersPrivileges[channel.slice(1)] = nicks;
+            }
         })        
         this.client.on('pm', (nick, to, text, message) => {
             // private message.
