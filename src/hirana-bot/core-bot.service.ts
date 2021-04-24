@@ -55,7 +55,7 @@ export class CoreBotService {
                     if(dataPart[0][0] == '#') {
                         channel = channel.slice(1);
                     }
-                    if(this.kvsSrv.put('customtitle-'+channel+'-'+dataPart[1].toLocaleLowerCase(), {
+                    if(this.kvsSrv.put('customtitle-'+channel+'-'+dataPart[1].toLowerCase(), {
                         color: dataPart[4] ? dataPart[4] : '#b9b9b9',
                         rango: dataPart[3]
                     })) {
@@ -79,7 +79,7 @@ export class CoreBotService {
                     if(dataPart[0][0] == '#') {
                         channel = channel.slice(1);
                     }
-                    this.kvsSrv.del('customtitle-'+channel+'-'+dataPart[1].toLocaleLowerCase());
+                    this.kvsSrv.del('customtitle-'+channel+'-'+dataPart[1].toLowerCase());
                     this.client.say(nick, 'ok');
                 } else {
                     if(!this.channelUsersPrivileges[dataPart[0]]) {
@@ -90,16 +90,16 @@ export class CoreBotService {
                     }
                 }
             } else if (dataPart[1] == '-g') {
-                if(environments.bot.owners.find(boss => boss.toLocaleLowerCase() === nick.toLocaleLowerCase())) {
-                    const user = dataPart[0].toLocaleLowerCase();
+                if(environments.bot.owners.find(boss => boss.toLowerCase() === nick.toLowerCase())) {
+                    const user = dataPart[0].toLowerCase();
                     this.kvsSrv.del('globaltitle-'+user);
                     this.client.say(nick, 'ok');
                 } else {
                     this.client.say(nick, 'No te encuentras en la lista de nicks habilitados. ');
                 }
             } else if (dataPart[1] == 'g') {
-                if(environments.bot.owners.find(boss => boss.toLocaleLowerCase() === nick.toLocaleLowerCase())) {
-                    const user = dataPart[0].toLocaleLowerCase();
+                if(environments.bot.owners.find(boss => boss.toLowerCase() === nick.toLowerCase())) {
+                    const user = dataPart[0].toLowerCase();
                     if(this.kvsSrv.put('globaltitle-'+user,{
                         color: dataPart[3] ? dataPart[3] : '#b9b9b9',
                         rango: dataPart[2]
