@@ -10,16 +10,20 @@ export class CoinsController {
 
     @Get(':nick')
     public async getCoinsOfNick(@Param('nick') nick: string) {
-        return await this.coinsSrv.get(nick);
+        let data = await this.coinsSrv.get(nick);
+        return data ? data : {
+            coins: 0,
+            history: []
+        };
     }
 
     @Put(':nick')
     @UseGuards(SecurityGuard)
     public async addCoins(@Body() newCoins: CoinsData, @Param('nick') nick: string, @Headers('client-id') clientID) {
-        if(newCoins.ammount <= 0) {
+        if(isNaN(newCoins.ammount) || newCoins.ammount <= 0) {
             throw new HttpException('invalid ammount', HttpStatus.BAD_REQUEST);
         }
-        if(newCoins.reason.length <= 2) {
+        if(!newCoins.reason || newCoins.reason.length <= 2) {
             throw new HttpException('invalid reason', HttpStatus.BAD_REQUEST);
         }
         return await this.coinsSrv.addCoins(nick, newCoins, clientID);
@@ -28,10 +32,10 @@ export class CoinsController {
     @Delete(':nick')
     @UseGuards(SecurityGuard)
     public async substractCoins(@Body() newCoins: CoinsData, @Param('nick') nick: string, @Headers('client-id') clientID) {
-        if(newCoins.ammount <= 0) {
+        if(isNaN(newCoins.ammount) || newCoins.ammount <= 0) {
             throw new HttpException('invalid ammount', HttpStatus.BAD_REQUEST);
         }
-        if(newCoins.reason.length <= 2) {
+        if(!newCoins.reason || newCoins.reason.length <= 2) {
             throw new HttpException('invalid reason', HttpStatus.BAD_REQUEST);
         }
         return await this.coinsSrv.substractCoins(nick, newCoins, clientID);
