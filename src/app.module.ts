@@ -5,6 +5,7 @@ import { AvatarsModule } from './avatars/avatars.module';
 import { CustomTitlesModule } from './custom-titles/custom-titles.module';
 import { UriProcessorModule } from './uri-processor/uri-processor.module';
 import { ApmModule } from 'elastic-apm-nest';
+import { CoinsModule } from './coins/coins.module';
 
 @Module({
   imports: [
@@ -14,10 +15,9 @@ import { ApmModule } from 'elastic-apm-nest';
     HiranaBotModule,
     ImgurApiModule,
     ApmModule.forRootAsync(),
+    CoinsModule,
   ],
-  controllers: [
-    
-  ],
+  controllers: [],
 })
 export class AppModule {
 }

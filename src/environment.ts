@@ -29,5 +29,8 @@ export const environments = {
     avatarTTL: 1800, // 30 minutos
     jdenticonTTL: 7200, // dos horas
     urlTTL: 3600, // 1 hora
-    userAgent: 'Hirana-Spider'
+    userAgent: 'Hirana-Spider',
+
+    bankTokens: JSON.parse(process.env.BANK_TOKENS) ? JSON.parse(process.env.BANK_TOKENS) : [] 
+    // [{"clientID": "virgilio", "token": "R5G3YS2VXPY1W9WG409PLV00YVPO5PGN"}, {"clientID": "hirana", "token": "B9MKYCYESJ0MNXQH9F5VAP04W9HIF5SH"}]
 };
