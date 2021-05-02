@@ -1,11 +1,12 @@
 import { CoinsData } from './coins.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { KVSService } from 'src/utils/core-utils/kvs/kvs.service';
+import { MetricCollectorService } from 'src/utils/core-utils/metric-collector/metric-collector.service';
 
 @Injectable()
 export class CoinsService {
 
-    constructor(private kvs: KVSService) {}
+    constructor(private kvs: KVSService, private metricCollector: MetricCollectorService) {}
 
     public async get(nick: string) {
         return await this.kvs.get('banco-'+nick, true);
@@ -30,6 +31,11 @@ export class CoinsService {
                 coins: data.ammount
             };
         }
+        this.metricCollector.writeMetric('hirana.coinoperation', {
+            ammount: data.ammount
+        }, {
+            operation: 'add'
+        });
         if(this.kvs.put('banco-'+nick, savedCoins)) {
             return savedCoins;
         } else {
@@ -54,6 +60,11 @@ export class CoinsService {
         } else {
             throw new HttpException('Nick not found.', HttpStatus.NOT_FOUND);
         }
+        this.metricCollector.writeMetric('hirana.coinoperation', {
+            ammount: data.ammount
+        }, {
+            operation: 'substract'
+        });
         if(this.kvs.put('banco-'+nick, savedCoins)) {
             return savedCoins;
         } else {
