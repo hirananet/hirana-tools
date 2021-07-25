@@ -6,6 +6,7 @@ import { CustomTitlesModule } from './custom-titles/custom-titles.module';
 import { UriProcessorModule } from './uri-processor/uri-processor.module';
 import { ApmModule } from 'elastic-apm-nest';
 import { CoinsModule } from './coins/coins.module';
+import { NickDataModule } from './nick-data/nick-data.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CoinsModule } from './coins/coins.module';
     ImgurApiModule,
     ApmModule.forRootAsync(),
     CoinsModule,
+    NickDataModule,
   ],
   controllers: [],
 })
