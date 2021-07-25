@@ -39,6 +39,7 @@
     "jsdom": "^16.5.0",
     "nestjs-real-ip": "^1.0.2",
     "open-graph-scraper": "^4.9.0",
+    "open-graph-scraper-lite": "^1.1.1",
     "redis": "^3.1.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

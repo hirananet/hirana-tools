@@ -10,8 +10,7 @@ const urlParser = require('url');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
-const ogs = require('open-graph-scraper');
-const options = { url: 'http://ogp.me/' };
+const ogs = require('open-graph-scraper-lite');
 
 @Injectable()
 export class UriProcService {
