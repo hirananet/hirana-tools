@@ -64,7 +64,7 @@ export class UriProcService {
                 // send to cache
                 const cached = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
                 // get data
-                this.httpService.get(url, {headers: {'User-Agent': environments.userAgent}}).subscribe(response => {
+                this.httpService.get(url, {headers: {'User-Agent': environments.userAgent}, responseType: 'document'}).subscribe(response => {
                     this.logger.debug('Fetched: ' + urlChecksum + '' + url);
                     this.metricCache('fetched', urlChecksum, url);
                     const dom = new JSDOM(response.data);
