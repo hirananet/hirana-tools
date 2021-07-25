@@ -10,6 +10,9 @@ const urlParser = require('url');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
+const ogs = require('open-graph-scraper');
+const options = { url: 'http://ogp.me/' };
+
 @Injectable()
 export class UriProcService {
 
@@ -64,53 +67,42 @@ export class UriProcService {
                 // send to cache
                 const cached = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
                 // get data
-                this.httpService.get(url, {headers: {'User-Agent': environments.userAgent}, responseType: 'document'}).subscribe(response => {
-                    this.logger.debug('Fetched: ' + urlChecksum + '' + url);
-                    this.metricCache('fetched', urlChecksum, url);
-                    const dom = new JSDOM(response.data);
-                    data.title = dom.window.document.title;
-                    const tq = dom.window.document.head.querySelector('link[rel=icon]');
-                    let favicon =  tq ? tq.href : undefined;
-                    if(!favicon) {
-                        const tq2 = dom.window.document.head.querySelector('link[rel="shortcut icon"]');
-                        favicon = tq2 ? tq2.href : undefined;
-                    }
-                    const urlParsed = urlParser.parse(url);
-                    const urlBase = urlParsed.protocol + '//' + urlParsed.host;
-                    if (favicon && favicon.indexOf('http') != 0) {
-                        favicon = favicon[0] == '/' ? urlBase + favicon : urlBase + '/' + favicon;
-                    }
-                    data.favicon = favicon;
-                    data.ready = true;
-                    if(cached) {
-                        const updated = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
-                        if(updated) {
-                            this.pubSrv.publish('url-processed', {
-                                hash: urlChecksum,
-                                resolved: true
-                            });
+                this.metricCache('fetched', urlChecksum, url);
+                ogs({url: url})
+                    .then((data) => {
+                        const { error, result, response } = data;
+                        if(!error) {
+                        //https://github.com/jshemas/openGraphScraper#results-json
+                            data.title = result.ogTitle;
+                            data.favicon = result.ogImage.url;
+                            data.ready = true;
+                            const updated = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
+                            if(updated) {
+                                this.pubSrv.publish('url-processed', {
+                                    hash: urlChecksum,
+                                    resolved: true
+                                });
+                            } else {
+                                this.logger.error('Fail update: ' + urlChecksum + '' + url);
+                                this.pubSrv.publish('url-processed', {
+                                    hash: urlChecksum,
+                                    resolved: false
+                                });
+                            }
+                            res(data);
                         } else {
-                            this.logger.error('Fail update: ' + urlChecksum + '' + url);
-                            this.pubSrv.publish('url-processed', {
-                                hash: urlChecksum,
-                                resolved: false
-                            });
+                            this.metricCache('fetch-error', urlChecksum, url);
+                            this.logger.error('Not fetched: ' + urlChecksum + '' + url);
+                            if(cached) {
+                                this.cacheSrv.invalidate('url-'+urlChecksum);
+                                this.pubSrv.publish('url-processed', {
+                                    hash: urlChecksum,
+                                    resolved: false
+                                });
+                            }
+                            rej('fail fetch.');
                         }
-                    }
-                    res(data);
-                }, err => {
-                    this.metricCache('fetch-error', urlChecksum, url);
-                    this.logger.error('Not fetched: ' + urlChecksum + '' + url);
-                    this.logger.error(err);
-                    if(cached) {
-                        this.cacheSrv.invalidate('url-'+urlChecksum);
-                        this.pubSrv.publish('url-processed', {
-                            hash: urlChecksum,
-                            resolved: false
-                        });
-                    }
-                    rej('fail fetch.');
-                });
+                    })
             }
         });
     }
