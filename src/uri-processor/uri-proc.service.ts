@@ -67,7 +67,7 @@ export class UriProcService {
                 // send to cache
                 const cached = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
                 // get data
-                this.metricCache('fetched', urlChecksum, url);
+                
                 ogs({url: url})
                     .then((data) => {
                         const { error, result, response } = data;
@@ -91,20 +91,29 @@ export class UriProcService {
                             }
                             res(data);
                         } else {
-                            this.metricCache('fetch-error', urlChecksum, url);
-                            this.logger.error('Not fetched: ' + urlChecksum + '' + url);
-                            if(cached) {
-                                this.cacheSrv.invalidate('url-'+urlChecksum);
-                                this.pubSrv.publish('url-processed', {
-                                    hash: urlChecksum,
-                                    resolved: false
-                                });
-                            }
+                            this.errorFetching(urlChecksum, url, cached);
                             rej('fail fetch.');
                         }
+                    }).catch(e => {
+                        this.errorFetching(urlChecksum, url, cached);
+                        this.logger.error('Fail fetch: ', e);
+                        rej('fail fetch.');
                     })
             }
         });
+    }
+    
+    private errorFetching(urlChecksum, url, cached) {
+        this.metricCache('fetch-error', urlChecksum, url);
+        this.logger.error('Not fetched: ' + urlChecksum + '' + url);
+        if(cached) {
+            this.cacheSrv.invalidate('url-'+urlChecksum);
+            this.pubSrv.publish('url-processed', {
+                hash: urlChecksum,
+                resolved: false
+            });
+        }
+        
     }
 
     private metricCache(status: string, checksum: string, url: string) {
