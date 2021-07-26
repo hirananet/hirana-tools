@@ -70,10 +70,8 @@ export class UriProcService {
                     .then((data) => {
                         const { error, result, response } = data;
                         if(!error) {
-                        //https://github.com/jshemas/openGraphScraper#results-json
-                        console.log(response, result);
                             data.title = result.ogTitle;
-                            data.favicon = result.ogImage.url;
+                            data.favicon = result.ogImage?.url;
                             data.ready = true;
                             const updated = this.cacheSrv.saveInCache('url-'+urlChecksum, environments.urlTTL, data);
                             if(updated) {
