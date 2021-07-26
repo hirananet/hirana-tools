@@ -95,9 +95,9 @@ export class UriProcService {
 
     private parseResponse(url: string): Promise<{title:string, favicon: string}> {
         return new Promise((res,rej) => {
-            this.httpSrv.get(url, {headers: {'User-Agent': environments.userAgent}, responseType: 'document', timeout: 2000})
+            this.httpSrv.get(url, {headers: {'User-Agent': environments.userAgent}, responseType: 'document', timeout: environments.urlHttpTimeout, maxContentLength: environments.maxContentLength, maxBodyLength: environments.maxContentLength})
                         .subscribe(_res => {
-                            if(_res.data.length > 4096) {
+                            if(_res.data[0] != '<') {
                                 rej();
                             }
                             const dom = new JSDOM(_res.data);

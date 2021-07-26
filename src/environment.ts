@@ -18,13 +18,14 @@ export const environments = {
     resourcesLocation: './resources',
     avatarHttpTimeout: 3000,
     urlCacheKey: 'url-processor',
-    urlHttpTimeout: 1500,
+    urlHttpTimeout: 3000,
     urlMaxBodyLength: 35000,
     rcStorageKey: 'rangos-custom',
     gcStorageKey: 'global-custom',
     imgurApiClientID: process.env.IMGUR_CLIENT_ID ? process.env.IMGUR_CLIENT_ID : '',
     imgurApiURL: 'https://api.imgur.com/3/upload',
     imgurHttpTimeout: 3000,
+    maxContentLength: 1048576, //expressed in bytes (1mb)
 
     avatarTTL: 1800, // 30 minutos
     jdenticonTTL: 7200, // dos horas
