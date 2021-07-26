@@ -3,7 +3,7 @@ import { PublisherService } from './../utils/core-utils/publisher/publisher.serv
 import { SubscriberService } from './../utils/core-utils/subscriber/subscriber.service';
 import { environments } from 'src/environment';
 import { CacheRedisService } from './../utils/core-utils/cache-redis/cache-redis.service';
-import { HttpService, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { first } from 'rxjs/operators';
 
 const urlParser = require('url');
@@ -17,8 +17,7 @@ export class UriProcService {
 
     private readonly logger = new Logger(UriProcService.name);
 
-    constructor(private httpService: HttpService,
-                private cacheSrv: CacheRedisService,
+    constructor(private cacheSrv: CacheRedisService,
                 private subSrv: SubscriberService,
                 private pubSrv: PublisherService,
                 private metricCollector: MetricCollectorService) {
@@ -72,6 +71,7 @@ export class UriProcService {
                         const { error, result, response } = data;
                         if(!error) {
                         //https://github.com/jshemas/openGraphScraper#results-json
+                        console.log(response, result);
                             data.title = result.ogTitle;
                             data.favicon = result.ogImage.url;
                             data.ready = true;
