@@ -95,8 +95,10 @@ export class UriProcService {
 
     private parseResponse(url: string): Promise<{title:string, favicon: string}> {
         return new Promise((res,rej) => {
+            this.logger.warn('AXIOS:: getting '+ url);
             this.httpSrv.get(url, {headers: {'User-Agent': environments.userAgent}, responseType: 'document', timeout: environments.urlHttpTimeout, maxContentLength: environments.maxContentLength, maxBodyLength: environments.maxContentLength})
                         .subscribe(_res => {
+                            this.logger.warn('AXIOS:: response '+ url);
                             if(_res.data[0] != '<') {
                                 rej();
                             }
@@ -118,6 +120,7 @@ export class UriProcService {
                             }
                             res(out);
                         }, err => {
+                            this.logger.error('AXIOS:: error '+ url, err);
                             rej(err);
                         });
         });
