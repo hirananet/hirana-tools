@@ -99,9 +99,10 @@ export class UriProcService {
             this.httpSrv.get(url, {headers: {'User-Agent': environments.userAgent}, responseType: 'document', timeout: environments.urlHttpTimeout, maxContentLength: environments.maxContentLength, maxBodyLength: environments.maxContentLength})
                         .subscribe(_res => {
                             this.logger.warn('AXIOS:: response '+ url);
-                            if(_res.data[0] != '<') {
-                                rej();
-                            }
+                            // if(_res.data[0] != '<') {
+                            //     rej();
+                            // }
+                            // this.logger.warn('AXIOS:: nostart '+ url);
                             const dom = new JSDOM(_res.data);
                             const out = {
                                 title: dom.window.document.title,
